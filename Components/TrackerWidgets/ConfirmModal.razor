@@ -1,0 +1,25 @@
+﻿@if (IsOpen)
+{
+    <Modal OnClose="OnClose">
+        <div class="flex flex-col items-center gap-6">
+            <span class="text-lg text-gray-700">@Text</span>
+            <div class="flex gap-4">
+                <button class="px-5 py-2 bg-gray-200 rounded-md text-gray-700 hover:bg-gray-300" @onclick="OnClose">انصراف</button>
+                <button class="px-5 py-2 bg-red-500 rounded-md text-white hover:bg-red-600" @onclick="Confirm">حذف</button>
+            </div>
+        </div>
+    </Modal>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnConfirm { get; set; }
+    [Parameter] public string Text { get; set; } = "آیا مطمئن هستید که می‌خواهید این مورد را حذف کنید؟";
+
+    private async Task Confirm()
+    {
+        await OnConfirm.InvokeAsync(null);
+        await OnClose.InvokeAsync(null);
+    }
+}

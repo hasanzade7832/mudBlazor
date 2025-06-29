@@ -1,0 +1,29 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+@using Routing = Microsoft.AspNetCore.Components.Routing
+@inject NavigationManager Nav
+
+<Router AppAssembly="@typeof(App).Assembly"
+        OnNavigateAsync="@( (Routing.NavigationContext ctx) => HandleRedirectAsync(ctx) )">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+    </Found>
+    <NotFound>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <h3 class="text-red-600 text-center mt-10">❌ صفحه پیدا نشد</h3>
+        </LayoutView>
+    </NotFound>
+</Router>
+
+<BlazoredToasts Position="Blazored.Toast.Configuration.ToastPosition.TopRight" />
+
+@code {
+    // روش اول: امضای متد با نام دقیق‌ فضای‌نام
+    private Task HandleRedirectAsync(Routing.NavigationContext context)
+    {
+        if (string.IsNullOrWhiteSpace(context.Path))
+        {
+            Nav.NavigateTo("/login", true);
+        }
+        return Task.CompletedTask;
+    }
+}

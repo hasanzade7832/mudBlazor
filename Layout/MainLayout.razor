@@ -1,0 +1,52 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager Nav
+
+@code {
+    // مسیر فعلی (مثلاً "login", "signup", "home", ...)
+    private string CurrentPath =>
+        Nav.ToBaseRelativePath(Nav.Uri).Trim('/').ToLowerInvariant();
+
+    // آیا صفحهٔ فعلی از صفحات احراز هویت است؟
+    private bool IsAuthPage => CurrentPath is "login" or "signup";
+}
+
+<div class="main-layout">
+
+    @* NavMenu فقط اگر در صفحهٔ احراز هویت نباشیم *@
+    @if (!IsAuthPage)
+    {
+        <NavMenu />
+    }
+
+    @* سرویس‌های MudBlazor *@
+    <MudThemeProvider />
+    <MudPopoverProvider />
+    <MudDialogProvider />
+    <MudSnackbarProvider />
+
+    @* محتوای صفحه *@
+    <div class="content bg-light -mt-100">
+        @Body
+    </div>
+</div>
+
+<style>
+    /* ارتفاع کامل برای html و body */
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+
+    /* لایهٔ اصلی: ستون فلکسی با حداقل ارتفاع کل نما */
+    .main-layout {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    /* بخش محتوا بقیهٔ فضا را می‌گیرد و فقط در صورت لزوم اسکرول می‌شود */
+    .content {
+        flex: 1;
+        overflow-y: auto;
+    }
+</style>

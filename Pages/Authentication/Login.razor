@@ -1,0 +1,120 @@
+﻿@page "/login"
+
+@using BlazorApp1.Models
+@using BlazorApp1.Services.Interfaces
+@using BlazorApp1.Services
+@using MudBlazor
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject IApiService ApiService
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+@inject AuthenticationStateProvider AuthProvider
+
+<div class="login-wrapper">
+    <!-- ظرف با عرض ثابت -->
+    <div class="login-container">
+        <EditForm Model="_model" OnValidSubmit="HandleSubmit">
+            <MudPaper Elevation="12" Class="login-card">
+                <MudStack Spacing="0">
+
+                    <!-- تیتر -->
+                     <MudText Typo="Typo.h4"
+                              Align="Align.Center" 
+                              Class="login-title"> 
+                        <MudIcon Icon="@Icons.Material.Filled.Login" class="icon-gap" /> 
+                         Sign in 
+                     </MudText> 
+
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <!-- Username -->
+                    <MudTextField T="string"
+                                  @bind-Value="_model.UserName"
+                                  Label="Username"
+                                  Placeholder=""
+                                  Required Immediate
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Person"
+                                  Class="login-field" />
+
+                    <!-- Password -->
+                    <MudTextField T="string"
+                                  @bind-Value="_model.Password"
+                                  Label="Password"
+                                  Placeholder=""
+                                  Required Immediate
+                                  InputType="@_passwordInputType"
+                                  Adornment="Adornment.End"
+                                  AdornmentIcon="@_passwordToggleIcon"
+                                  OnAdornmentClick="@TogglePassword"
+                                  Class="login-field" />
+
+                    <!-- دکمه‌ها -->
+                    <MudStack Class="action-stack" Spacing="2">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   FullWidth
+                                   Disabled="@_busy"
+                                   ButtonType="ButtonType.Submit"
+                                   Class="login-btn">
+                            <MudIcon Icon="@Icons.Material.Filled.Login" class="icon-gap" />
+                            Sign In
+                        </MudButton>
+
+                        <MudButton Variant="Variant.Filled"
+                                   FullWidth
+                                   OnClick="@(()=>Navigation.NavigateTo("/signup"))"
+                                   Class="signup-btn">
+                            <MudIcon Icon="@Icons.Material.Filled.PersonAdd" class="icon-gap" />
+                            Sign Up
+                        </MudButton>
+                    </MudStack>
+
+                </MudStack>
+            </MudPaper>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private readonly LoginDto _model = new();
+    private bool _showPassword;
+    private bool _busy;
+
+    private InputType _passwordInputType => _showPassword ? InputType.Text : InputType.Password;
+    private string _passwordToggleIcon => _showPassword
+        ? Icons.Material.Filled.VisibilityOff
+        : Icons.Material.Filled.Visibility;
+
+    private void TogglePassword() => _showPassword = !_showPassword;
+
+    private async Task HandleSubmit()
+    {
+        if (_busy) return; _busy = true;
+        try
+        {
+            var result = await ApiService.LoginAsync(_model);
+            if (result is null || string.IsNullOrWhiteSpace(result.Token))
+            { Snackbar.Add("Login failed: invalid credentials", Severity.Error); return; }
+
+            var user = new UserDto
+                {
+                    Id = result.UserId,
+                    UserName = result.UserName,
+                    FullName = result.FullName,
+                    Role = result.Role
+                };
+
+            await AuthService.LoginAsync(result.Token, user);
+            if (AuthProvider is CustomAuthStateProvider p) p.NotifyUserChanged();
+
+            Snackbar.Add("Login successful!", Severity.Success);
+            Navigation.NavigateTo("/home", true);
+        }
+        catch (Exception ex) { Snackbar.Add($"Login error: {ex.Message}", Severity.Error); }
+        finally { _busy = false; }
+    }
+}

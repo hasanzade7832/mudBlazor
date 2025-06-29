@@ -1,0 +1,287 @@
+﻿@page "/signup"
+@using System.Net.Http.Json
+@using System.Text.Json
+@using Blazored.Toast.Services
+@using BlazorApp1.Models.Auth
+@using BlazorApp1.Services.Interfaces
+@using BlazorApp1.Components.TrackerWidgets
+
+@inject IApiService ApiService
+@inject NavigationManager Navigation
+@inject IToastService ToastService
+
+<div class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <div class="fixed inset-0 bg-gradient-to-tr from-indigo-100 to-indigo-200"></div>
+
+    <div class="relative z-10 bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4">
+        <h2 class="text-3xl font-extrabold text-indigo-700 mb-8 flex items-center justify-center gap-2">
+            <i class="fas fa-user-plus text-indigo-500"></i>
+            Create an account
+        </h2>
+
+        <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-red-600 text-sm mb-4" />
+
+            <div class="space-y-6">
+                <!-- Username -->
+                <div>
+                    <label class="block mb-1 text-gray-700 font-semibold">Username</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400">
+                            <i class="fas fa-user"></i>
+                        </span>
+                        <InputText @bind-Value="Model.UserName"
+                                   autocomplete="username"
+                                   required
+                                   class="w-full border border-gray-300 pl-10 pr-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+                                   placeholder="Enter a username" />
+                    </div>
+                </div>
+
+                <!-- Full Name -->
+                <div>
+                    <label class="block mb-1 text-gray-700 font-semibold">Full Name</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400">
+                            <i class="fas fa-user"></i>
+                        </span>
+                        <InputText @bind-Value="Model.FullName"
+                                   autocomplete="name"
+                                   required
+                                   class="w-full border border-gray-300 pl-10 pr-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+                                   placeholder="Your full name" />
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label class="block mb-1 text-gray-700 font-semibold">Email</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                        <InputText @bind-Value="Model.Email"
+                                   type="email"
+                                   autocomplete="email"
+                                   class="w-full border border-gray-300 pl-10 pr-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+                                   placeholder="Your email address" />
+                    </div>
+                </div>
+
+                <!-- Phone Number -->
+                <div>
+                    <label class="block mb-1 text-gray-700 font-semibold">Phone Number</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400">
+                            <i class="fas fa-phone"></i>
+                        </span>
+                        <InputText @bind-Value="Model.PhoneNumber"
+                                   autocomplete="tel"
+                                   class="w-full border border-gray-300 pl-10 pr-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+                                   placeholder="Your phone number" />
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label class="block mb-1 text-gray-700 font-semibold">Password</label>
+                    <div class="relative">
+                        <button type="button"
+                                tabindex="-1"
+                                @onclick="TogglePassword"
+                                class="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400 focus:outline-none"
+                                aria-label="Toggle password visibility">
+                            <i class="@(ShowPassword ? "fas fa-lock-open" : "fas fa-lock")"></i>
+                        </button>
+                        <InputText @bind-Value="Model.Password"
+                                   autocomplete="new-password"
+                                   required
+                                   type="@(ShowPassword ? "text" : "password")"
+                                   class="w-full border border-gray-300 pl-10 pr-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+                                   placeholder="Create a password" />
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit"
+                        disabled="@IsLoading"
+                        class="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white text-lg font-bold py-2 rounded-lg shadow hover:bg-indigo-700 transition duration-150 active:scale-95 @(IsLoading ? "opacity-60 cursor-wait" : "")">
+                    <i class="fas fa-user-plus text-white"></i>
+                    @(IsLoading ? "Signing up..." : "Sign Up")
+                </button>
+            </div>
+        </EditForm>
+
+        <!-- Back -->
+        <button @onclick='() => Navigation.NavigateTo("/login")'
+                class="w-full mt-4 flex items-center justify-center gap-2 bg-gray-100 text-indigo-700 text-lg font-bold py-2 rounded-lg shadow hover:bg-gray-200 transition duration-150 active:scale-95">
+            <i class="fas fa-arrow-left text-indigo-700"></i>
+            Back to Sign In
+        </button>
+    </div>
+</div>
+
+@code {
+    private RegisterDto Model { get; set; } = new();
+    private bool ShowPassword { get; set; }
+    private bool IsLoading { get; set; }
+
+    private void TogglePassword() => ShowPassword = !ShowPassword;
+
+    private async Task HandleSubmit()
+    {
+        IsLoading = true;
+
+        try
+        {
+            var result = await ApiService.RegisterAsync(Model);
+
+            if (string.IsNullOrWhiteSpace(result) ||
+                result.Contains("خطا") ||
+                result.Contains("رمز عبور") ||
+                result.Contains("قبلاً") ||
+                result.Contains("کوتاه") ||
+                result.Length < 10)
+            {
+                ToastService.ShowError(result.Trim('"'));
+                return;
+            }
+
+            ToastService.ShowSuccess(result.Trim('"'));
+            await Task.Delay(1500);
+            Navigation.NavigateTo("/login", true); // پاکسازی توست‌ها
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"خطای سیستم: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+}
+
+<style>
+    .navbar {
+        display: flex;
+        align-items: center;
+        background-color: #4338CA;
+        padding: 0.75rem 1rem;
+        position: relative;
+        /* اگر می‌خواهید navbar ثابت در بالای صفحه باشد: */
+        /* position: fixed; top: 0; left: 0; right: 0; z-index: 100; */
+    }
+
+    .navbar__brand {
+        color: #fff;
+        font-size: 1.75rem;
+        font-weight: 800;
+        margin-left: 0.5rem;
+    }
+
+    .navbar__links {
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        margin: 0 auto;
+        padding: 0;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.55rem 1.1rem;
+        color: #fff;
+        border-radius: 0.65rem;
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+        .nav-link:hover:not(.selected-link) {
+            background-color: #514DE0;
+            transform: translateY(-2px);
+        }
+
+    .selected-link {
+        background-color: #6366F1;
+        box-shadow: 0 4px 12px rgba(67, 56, 202, 0.25);
+    }
+
+    .icon {
+        font-size: 1.55rem;
+        line-height: 1;
+    }
+
+    .profile-container {
+        position: relative;
+        margin-right: 0.5rem;
+    }
+
+    .profile {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: #4F46E5;
+        padding: 0.55rem 1.25rem;
+        border-radius: 9999px;
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: background-color 0.3s ease;
+        cursor: pointer;
+        user-select: none;
+    }
+
+        .profile:hover {
+            background: #5B54EE;
+        }
+
+        .profile .fa-user-circle {
+            font-size: 1.55rem;
+        }
+
+    .dropdown-icon {
+        font-size: 0.75rem;
+    }
+
+    .profile-dropdown {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 0.5rem);
+        background: #fff;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        list-style: none;
+        padding: 0.25rem 0;
+        margin: 0;
+        min-width: 150px;
+        z-index: 1000;
+    }
+
+        .profile-dropdown li {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background-color 0.2s ease;
+            text-align: center;
+            color: #333;
+        }
+
+            .profile-dropdown li:hover {
+                background-color: #f0f0f0;
+            }
+
+            .profile-dropdown li.logout-item {
+                color: #e53e3e;
+            }
+
+                .profile-dropdown li.logout-item:hover {
+                    background-color: rgba(229, 62, 62, 0.1);
+                }
+</style>
+

@@ -1,0 +1,166 @@
+﻿@using MudBlazor
+@using System.Text.Json
+@inject IJSRuntime JS
+@inject NavigationManager NavManager
+
+<MudAppBar Elevation="1" Color="Color.Primary" Dense="true" Class="px-4 py-1 relative">
+
+    <!-- برند -->
+    <MudText Typo="Typo.h5" Class="text-white font-extrabold select-none">
+        Kargardoon
+    </MudText>
+
+    <!-- منوی وسط (≥ 960 px) -->
+    <MudHidden Breakpoint="Breakpoint.MdAndDown">
+        <div class="nav-center">
+            @foreach (var item in MenuItems)
+            {
+                if (!item.Show) continue;
+                bool active = IsActive(item.Href);
+
+                <MudButton Variant="Variant.Filled"
+                           Color="@(active ? Color.Secondary : Color.Inherit)"
+                           Href="@item.Href"
+                           EndIcon="@item.Icon"
+                           DisableRipple="true"
+                           Class="@GetBtnClass(active)">
+                    @item.Text
+                </MudButton>
+            }
+        </div>
+    </MudHidden>
+
+    <MudSpacer />
+
+    <!-- منوی آدمک (≥ 960 px) -->
+    <MudHidden Breakpoint="Breakpoint.MdAndDown">
+        <MudMenu AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" Class="mx-2">
+            <ActivatorContent>
+                <MudButton Variant="Variant.Text" Color="Color.Inherit"
+                           Class="nav-compact-btn flex items-center gap-2">
+                    <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Size="Size.Medium" />
+                    <span>@UserNameLocal</span>
+                    <MudIcon Icon="@Icons.Material.Filled.KeyboardArrowDown" />
+                </MudButton>
+            </ActivatorContent>
+
+            <ChildContent>
+                <MudMenuItem OnClick="GoToProfile" Class="user-menu-item">
+                    پروفایل کاربری
+                </MudMenuItem>
+                <MudMenuItem OnClick="Logout" Class="user-menu-item exit">
+                    خروج
+                </MudMenuItem>
+            </ChildContent>
+        </MudMenu>
+    </MudHidden>
+
+    <!-- منوی همبرگری (< 960 px) -->
+    <MudHidden Breakpoint="Breakpoint.MdAndUp">
+        <MudMenu Icon="@Icons.Material.Filled.Menu"
+                 Color="Color.Inherit"
+                 AnchorOrigin="Origin.BottomRight"
+                 TransformOrigin="Origin.TopRight"
+                 Dense="true">
+
+            @foreach (var item in MenuItems)
+            {
+                if (!item.Show) continue;
+                <MudMenuItem Href="@item.Href" Class="mobile-menu-item">
+                    @item.Text
+                </MudMenuItem>
+            }
+
+            <MudDivider />
+
+            <MudMenuItem OnClick="GoToProfile" Class="mobile-menu-item">
+                پروفایل کاربری
+            </MudMenuItem>
+            <MudMenuItem OnClick="Logout" Class="mobile-menu-item exit">
+                خروج
+            </MudMenuItem>
+        </MudMenu>
+    </MudHidden>
+
+</MudAppBar>
+
+@code {
+    /* ---------- وضعیت کاربر ---------- */
+    private bool IsAdminLocal;
+    private string UserNameLocal = "کاربر";
+
+    /* ---------- آیتم‌های منوی وسط ---------- */
+    private readonly record struct MenuItem(
+        string Href, string Text, string Icon, bool Show = true);
+
+    private IEnumerable<MenuItem> MenuItems => new MenuItem[]
+    {
+    new MenuItem("/Egg",            "تخم‌مرغ‌ها",    Icons.Material.Filled.BreakfastDining),
+    new MenuItem("/Internet",       "هزینه اینترنت", Icons.Material.Filled.Public),
+    new MenuItem("/PettyCash",      "تنخواه",        Icons.Material.Filled.CreditCard, IsAdminLocal),
+    new MenuItem("/ActivityPage",   "تایم‌ترکر",     Icons.Material.Filled.AccessTime),
+    new MenuItem("/TaskManagement", "تسک",           Icons.Material.Filled.ListAlt,    IsAdminLocal),
+    new MenuItem("/Attendance",     "حضور",          Icons.Material.Filled.Schedule),
+    new MenuItem("/home",           "خانه",          Icons.Material.Filled.Home)
+    };
+
+    /* ---------- چرخهٔ حیات ---------- */
+    protected override async Task OnInitializedAsync()
+    {
+        NavManager.LocationChanged += async (_, __) => await LoadUser();
+        await LoadUser();
+    }
+
+    /* ---------- متدهای کمکی ---------- */
+    private static string GetBtnClass(bool active) =>
+        active ? "nav-compact-btn mud-button-filled-secondary"
+               : "nav-compact-btn";
+
+    private bool IsActive(string href)
+    {
+        var rel = NavManager.ToBaseRelativePath(NavManager.Uri).Trim('/');
+        return href.Trim('/').Equals(rel, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task LoadUser()
+    {
+        var json = await JS.InvokeAsync<string>("localStorage.getItem", "user");
+
+        if (string.IsNullOrEmpty(json))
+        {
+            // آدرس فعلی
+            var rel = NavManager.ToBaseRelativePath(NavManager.Uri).Trim('/').ToLowerInvariant();
+
+            // اگر همین الآن در /login یا /signup هستیم، بی‌دلیل ریدایرکت نکن!
+            if (rel is not ("login" or "signup"))
+            {
+                NavManager.NavigateTo("/login"); // forceLoad لازم نیست
+            }
+            return;
+        }
+
+        var u = JsonSerializer.Deserialize<LocalUser>(json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+
+        UserNameLocal = u.UserName ?? UserNameLocal;
+        IsAdminLocal = string.Equals(u.Role, "Admin", StringComparison.OrdinalIgnoreCase);
+
+        StateHasChanged();
+    }
+
+    /* ---------- عملیات ---------- */
+    private void GoToProfile() => NavManager.NavigateTo("/profile");
+    private async Task Logout()
+    {
+        await JS.InvokeVoidAsync("localStorage.removeItem", "user");
+        await JS.InvokeVoidAsync("localStorage.removeItem", "token");
+        NavManager.NavigateTo("/login");
+    }
+
+    /* ---------- DTO ساده ---------- */
+    private sealed class LocalUser
+    {
+        public string? UserName { get; set; }
+        public string? Role { get; set; }
+    }
+}
