@@ -1,64 +1,57 @@
 ﻿@page "/ActivityPage"
 
-@using MudBlazor
 @using BlazorApp1.Models
 @using BlazorApp1.Services.Interfaces
+@using BlazorApp1.Services.State
+@using MudBlazor
+@using BlazorApp1.Components.TrackerWidgets
 
 @inject IApiService ApiService
 @inject NavigationManager NavManager
 @inject ISnackbar Snackbar
+@inject ActivityState ActivityState
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="py-12">
-    <!-- تیتر --------------------------------------------------------------- -->
-    <MudText Typo="Typo.h4"
-             Align="Align.Center"
-             Color="Color.Primary"
-             Class="mb-8">
-        فعالیت‌ها
+    <MudText Typo="Typo.h4" Align="Align.Center" Color="Color.Primary" Class="mb-8">
+        لیست فعالیت‌ها
     </MudText>
 
-    <!-- ردیفِ افزودن فعالیت (MudGrid) ------------------------------------- -->
-    <MudGrid Class="mb-8" AlignItems="AlignItems.Center" Justify="Justify.Center" GutterSpacing="3">
-        <!-- ستون عنوان: در مد ≥md هفت واحد از ۱۲ -->
-        <MudItem Class="mt-4" xs="12" md="7">
-            <MudTextField T="string"
-                          @bind-Value="newTitle"
-                          Label="عنوان فعالیت"
-                          FullWidth="true"
-                          Variant="Variant.Outlined"
-                          InputClass="text-end" />
-        </MudItem>
+    <!-- فرم افزودن فعالیت -->
+    <MudPaper Class="p-4 mb-8">
+        <MudGrid GutterSpacing="3" AlignItems="AlignItems.Center">
+            <MudItem xs="12" md="6">
+                <MudTextField T="string"
+                              @bind-Value="newTitle"
+                              Label="عنوان فعالیت"
+                              Variant="Variant.Outlined"
+                              FullWidth="true"
+                              InputClass="text-end"
+                              Immediate="true"
+                              Error="@showTitleError"
+                              ErrorText="عنوان الزامی است" />
+            </MudItem>
+            <MudItem xs="6" md="3">
+                <MudTextField T="string"
+                              @bind-Value="newTime"
+                              Placeholder="00:00:00"
+                              Variant="Variant.Outlined"
+                              Label="مدت زمان"
+                              FullWidth="true"
+                              InputClass="text-center" />
+            </MudItem>
+            <MudItem xs="6" md="3" Class="d-flex align-items-center">
+                <MudButton Color="Color.Primary"
+                           Variant="Variant.Outlined"
+                           StartIcon="@Icons.Material.Filled.Add"
+                           OnClick="AddActivity"
+                           Size="Size.Small"
+                           Class="w-100 px-0 py-1 rounded-3">
+                    افزودن
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
 
-        <!-- ستون زمان: در مد ≥md سه واحد -->
-        <MudItem  xs="12" md="3">
-            <MudText Typo="Typo.caption"
-                     Align="Align.Right"
-                     Class="d-block mb-1">
-                فعالیت انجام شده تا الان
-            </MudText>
-
-            <MudTextField T="string"
-                          @bind-Value="newTime"
-                          Placeholder="00:00"
-                          FullWidth="true"
-                          Variant="Variant.Outlined"
-                          InputClass="text-end" />
-        </MudItem>
-
-        <!-- ستون دکمه: در مد ≥md دو واحد -->
-        <MudItem  xs="12" md="2"
-                 Class="mt-8">
-            <MudButton Color="Color.Primary"
-                       Variant="Variant.Filled"
-                       StartIcon="@Icons.Material.Filled.Add"
-                       OnClick="@AddActivity"
-                       Class="w-100">
-                افزودن
-            </MudButton>
-        </MudItem>
-    </MudGrid>
-
-    <!-- جدول فعالیت‌ها ------------------------------------------------------ -->
     @if (loading)
     {
         <MudProgressCircular Indeterminate="true"
@@ -68,241 +61,172 @@
     else
     {
         <MudPaper Elevation="1">
-            <MudTable Items="activities"
-                      Hover="true"
-                      Striped="true"
-                      Dense="true"
-                      RowClick="@OnRowClick">
-
-                <HeaderContent>
-                    <MudTh Class="text-end">ردیف</MudTh>
-                    <MudTh Class="text-end">عنوان فعالیت</MudTh>
-                    <MudTh Class="text-end">زمان کل</MudTh>
-                    <MudTh Class="text-center">عملیات</MudTh>
-                </HeaderContent>
-
-                <RowTemplate>
-                    <MudTd Class="text-end font-mono">
-                        @(activities.IndexOf(context) + 1)
-                    </MudTd>
-
-                    <MudTd Class="text-end">
-                        <MudText Typo="Typo.subtitle2">@context.Title</MudText>
-                    </MudTd>
-
-                    <MudTd Class="text-end">
-                        <MudChip T="string"
-                                 Color="Color.Primary"
-                                 Variant="Variant.Outlined"
-                                 Icon="@Icons.Material.Filled.Schedule">
-                            @FormatTime(context.TotalSeconds)
-                        </MudChip>
-                    </MudTd>
-
-                    <MudTd Class="text-center">
-                        <div class="d-inline-flex gap-2" @onclick:stopPropagation="true">
-                            <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                                           Color="Color.Warning"
-                                           Size="Size.Small"
-                                           OnClick="@(() => OpenEditDialog(context))" />
-
-                            <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                                           Color="Color.Error"
-                                           Size="Size.Small"
-                                           OnClick="@(() => OpenDeleteDialog(context.Id))" />
-                        </div>
-                    </MudTd>
-                </RowTemplate>
-            </MudTable>
+            <ActivityTable Items="activities"
+                           OnEdit="OpenEditModal"
+                           OnDelete="OpenDelete"
+                           OnDetails="NavigateToTracker"
+                           ShowDetailsIcon="true" />
         </MudPaper>
     }
 </MudContainer>
 
-<!-- دیالوگ ویرایش ----------------------------------------------------------- -->
+<!-- دیالوگ ویرایش فعالیت -->
 <MudDialog @bind-Visible="editOpen" MaxWidth="MaxWidth.Small">
     <DialogContent>
-        <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-4">
-            ویرایش فعالیت
-        </MudText>
-
-        <div class="d-flex flex-column gap-4">
-            <MudTextField T="string"
-                          @bind-Value="editTitle"
-                          Label="عنوان جدید"
-                          Variant="Variant.Outlined"
-                          InputClass="text-end" />
-
-            <MudTextField T="string"
-                          @bind-Value="editTime"
-                          Placeholder="00:00"
-                          Variant="Variant.Outlined"
-                          Class="w-20"
-                          InputClass="text-end" />
-        </div>
+        <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-4">ویرایش فعالیت</MudText>
+        <MudTextField T="string"
+                      @bind-Value="editTitle"
+                      Label="عنوان جدید"
+                      Variant="Variant.Outlined"
+                      Immediate="true"
+                      Error="@editShowTitleError"
+                      ErrorText="عنوان الزامی است" />
+        <MudTextField T="string"
+                      @bind-Value="editTime"
+                      Placeholder="00:00:00"
+                      Variant="Variant.Outlined"
+                      Label="مدت زمان"
+                      Immediate="true"
+                      InputClass="text-center" />
     </DialogContent>
-
     <DialogActions>
-        <div class="d-flex justify-end gap-3 mt-4">
-            <MudButton Variant="Variant.Text"
-                       Color="Color.Default"
-                       OnClick="@(() => editOpen = false)">
-                لغو
-            </MudButton>
-
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       OnClick="@SaveEdit">
-                ذخیره
-            </MudButton>
-        </div>
+        <MudButton Color="Color.Default"
+                   Variant="Variant.Text"
+                   Size="Size.Small"
+                   OnClick="() => editOpen = false">
+            لغو
+        </MudButton>
+        <MudButton Color="Color.Primary"
+                   Variant="Variant.Filled"
+                   Size="Size.Small"
+                   OnClick="SaveEdit">
+            ذخیره
+        </MudButton>
     </DialogActions>
 </MudDialog>
 
-<!-- دیالوگ حذف -------------------------------------------------------------- -->
-<MudDialog @bind-Visible="deleteOpen" MaxWidth="MaxWidth.ExtraSmall">
-    <DialogContent>
-        <MudText Typo="Typo.subtitle1" Class="mb-4">
-            آیا مطمئن هستید که این فعالیت حذف شود؟
-        </MudText>
-    </DialogContent>
-
-    <DialogActions>
-        <div class="d-flex justify-end gap-3">
-            <MudButton Variant="Variant.Text"
-                       Color="Color.Default"
-                       OnClick="@(() => deleteOpen = false)">
-                لغو
-            </MudButton>
-
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Error"
-                       OnClick="@DeleteActivity">
-                حذف
-            </MudButton>
-        </div>
-    </DialogActions>
-</MudDialog>
-
+<!-- دیالوگ حذف -->
+<ConfirmDialog @bind-Open="deleteOpen"
+               Message="آیا مطمئن هستید که این فعالیت حذف شود؟"
+               ConfirmText="حذف"
+               ConfirmColor="Color.Error"
+               OnConfirm="DeleteActivity" />
 
 @code {
-    /* --------------------- state --------------------- */
     private List<ActivityDto> activities = new();
+    private string newTitle = "";
+    private string newTime = "00:00:00";
+    private bool showTitleError = false;
     private bool loading = true;
 
-    private string newTitle = string.Empty;
-    private string newTime  = "00:00";
-
-    private bool   editOpen;
-    private int    editId;
-    private string editTitle = string.Empty;
-    private string editTime  = "00:00";
+    private bool editOpen;
+    private int editId;
+    private string editTitle = "";
+    private string editTime = "00:00:00";
+    private bool editShowTitleError = false;
 
     private bool deleteOpen;
-    private int  deleteId;
+    private int deleteId;
 
-    /* --------------------- lifecycle ----------------- */
     protected override async Task OnInitializedAsync() => await LoadActivities();
 
-    /* --------------------- helpers ------------------- */
-    private static int    ToSec(string hm) => TimeSpan.TryParse(hm, out var ts) ? (int)ts.TotalSeconds : 0;
-    private static string FormatTime(int s) => TimeSpan.FromSeconds(s).ToString(@"hh\:mm");
-
-    /* --------------------- data ops ------------------ */
     private async Task LoadActivities()
     {
         loading = true;
         try
         {
-            var list = await ApiService.GetActivitiesAsync();
-            foreach (var a in list.Where(a => a.TotalSeconds == 0))
-            {
-                var rec = await ApiService.GetTimeRecordsByActivityAsync(a.Id);
-                a.TotalSeconds = rec.Sum(r => ToSec(r.Duration));
-            }
-            activities = list;
+            activities = await ApiService.GetActivitiesAsync();
         }
         catch
         {
-            Snackbar.Add("خطا در بارگذاری", Severity.Error);
+            Snackbar.Add("خطا در دریافت لیست فعالیت‌ها", Severity.Error);
         }
         loading = false;
     }
 
     private async Task AddActivity()
     {
-        if (string.IsNullOrWhiteSpace(newTitle))
+        showTitleError = string.IsNullOrWhiteSpace(newTitle);
+        if (showTitleError)
         {
-            Snackbar.Add("عنوان فعالیت را وارد کنید!", Severity.Error);
+            Snackbar.Add("عنوان را وارد کنید", Severity.Error);
             return;
         }
-
-        var ok = await ApiService.CreateActivityAsync(new ActivityDto
+        if (!TimeSpan.TryParse(newTime, out var ts))
         {
-            Title        = newTitle.Trim(),
-            TotalSeconds = ToSec(newTime)
-        });
-
-        Snackbar.Add(ok ? "فعالیت اضافه شد" : "خطا در افزودن",
-                     ok ? Severity.Success : Severity.Error);
-
-        if (ok)
-        {
-            newTitle = string.Empty;
-            newTime  = "00:00";
-            await LoadActivities();
+            Snackbar.Add("زمان نامعتبر است", Severity.Error);
+            return;
         }
+        var dto = new ActivityDto
+            {
+                Title = newTitle.Trim(),
+                TotalSeconds = (int)ts.TotalSeconds
+            };
+        var ok = await ApiService.CreateActivityAsync(dto);
+        Snackbar.Add(ok ? "فعالیت افزوده شد" : "خطا در افزودن",
+                     ok ? Severity.Success : Severity.Error);
+        if (ok) await LoadActivities();
+        newTitle = ""; newTime = "00:00:00"; showTitleError = false;
     }
 
-    private void OpenEditDialog(ActivityDto a)
+    private void OpenEditModal(ActivityDto act)
     {
-        editId    = a.Id;
-        editTitle = a.Title;
-        editTime  = FormatTime(a.TotalSeconds);
-        editOpen  = true;
+        editId = act.Id;
+        editTitle = act.Title;
+        editTime = FormatTime(act.TotalSeconds);
+        editShowTitleError = false;
+        editOpen = true;
     }
 
     private async Task SaveEdit()
     {
-        if (string.IsNullOrWhiteSpace(editTitle))
+        editShowTitleError = string.IsNullOrWhiteSpace(editTitle);
+        if (editShowTitleError)
         {
-            Snackbar.Add("عنوان خالی است", Severity.Error);
+            Snackbar.Add("عنوان نمی‌تواند خالی باشد", Severity.Error);
             return;
         }
-
-        var ok = await ApiService.UpdateActivityAsync(editId, new ActivityDto
+        if (!TimeSpan.TryParse(editTime, out var ts))
         {
-            Id           = editId,
-            Title        = editTitle.Trim(),
-            TotalSeconds = ToSec(editTime)
-        });
-
-        Snackbar.Add(ok ? "ذخیره شد" : "خطا در ذخیره",
+            Snackbar.Add("زمان نامعتبر است", Severity.Error);
+            return;
+        }
+        var dto = new ActivityDto
+            {
+                Id = editId,
+                Title = editTitle.Trim(),
+                TotalSeconds = (int)ts.TotalSeconds
+            };
+        var ok = await ApiService.UpdateActivityAsync(editId, dto);
+        Snackbar.Add(ok ? "ویرایش شد" : "خطا در ویرایش",
                      ok ? Severity.Success : Severity.Error);
-
+        if (ok)
+        {
+            var itm = activities.FirstOrDefault(a => a.Id == editId);
+            if (itm != null) { itm.Title = dto.Title; itm.TotalSeconds = dto.TotalSeconds; }
+        }
         editOpen = false;
-        if (ok) await LoadActivities();
     }
 
-    private void OpenDeleteDialog(int id)
-    {
-        deleteId  = id;
-        deleteOpen = true;
-    }
+    private void OpenDelete(int id) { deleteId = id; deleteOpen = true; }
 
     private async Task DeleteActivity()
     {
         var ok = await ApiService.DeleteActivityAsync(deleteId);
-
         Snackbar.Add(ok ? "حذف شد" : "خطا در حذف",
                      ok ? Severity.Success : Severity.Error);
-
+        if (ok) activities.RemoveAll(a => a.Id == deleteId);
         deleteOpen = false;
-        if (ok) await LoadActivities();
     }
 
-    private void OnRowClick(TableRowClickEventArgs<ActivityDto> e)
+    private Task NavigateToTracker(int id)
     {
-        if (e.Item is null) return;
-        NavManager.NavigateTo($"/tracker/{e.Item.Id}");
+        var sel = activities.FirstOrDefault(a => a.Id == id);
+        if (sel != null) ActivityState.SetActivity(sel);
+        NavManager.NavigateTo($"/tracker/{id}");
+        return Task.CompletedTask;
     }
+
+    private static string FormatTime(int seconds)
+      => TimeSpan.FromSeconds(seconds).ToString(@"hh\:mm\:ss");
 }

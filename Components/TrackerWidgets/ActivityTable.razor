@@ -1,0 +1,62 @@
+﻿@using BlazorApp1.Models
+@using MudBlazor
+
+<MudTable Items="Items"
+          Hover="true"
+          Striped="true"
+          Dense="true">
+
+    <HeaderContent>
+        <MudTh class="text-end">#</MudTh>
+        <MudTh class="text-end">عنوان</MudTh>
+        <MudTh class="text-end">مدت</MudTh>
+        <MudTh class="text-center">عملیات</MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudTd class="text-end font-mono">@((Items.IndexOf(context) + 1))</MudTd>
+        <MudTd class="text-end">@context.Title</MudTd>
+        <MudTd class="text-end">
+            <MudChip T="string"
+                     Color="Color.Primary"
+                     Variant="Variant.Outlined"
+                     Icon="@Icons.Material.Filled.Schedule"
+                     Size="Size.Small">
+                @FormatTime(context.TotalSeconds)
+            </MudChip>
+        </MudTd>
+        <MudTd class="text-center">
+            @if (ShowDetailsIcon)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.Visibility"
+                               Color="Color.Primary"
+                               Title="مشاهده جزئیات"
+                               OnClick="@(async () => await OnDetails.InvokeAsync(context.Id))"
+                               Size="Size.Small" />
+            }
+            <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                           Color="Color.Secondary"
+                           Title="ویرایش"
+                           OnClick="@(async () => await OnEdit.InvokeAsync(context))"
+                           Size="Size.Small" />
+
+            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                           Color="Color.Error"
+                           Title="حذف"
+                           OnClick="@(async () => await OnDelete.InvokeAsync(context.Id))"
+                           Size="Size.Small" />
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    [Parameter] public List<ActivityDto> Items { get; set; } = new();
+    [Parameter] public EventCallback<ActivityDto> OnEdit { get; set; }
+    [Parameter] public EventCallback<int> OnDelete { get; set; }
+    [Parameter] public EventCallback<int> OnDetails { get; set; }
+
+    [Parameter] public bool ShowDetailsIcon { get; set; } = true;
+
+    private static string FormatTime(int seconds)
+        => TimeSpan.FromSeconds(seconds).ToString(@"hh\:mm\:ss");
+}

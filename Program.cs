@@ -7,6 +7,7 @@ using Blazored.Toast;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor.Services;
+using BlazorApp1.Services.State;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -24,6 +25,8 @@ builder.Services.AddTransient<TokenHandler>();
 
 builder.Services.AddMudServices();
 
+
+
 // ثبت HttpClient و متصل کردن TokenHandler به HttpClientHandler
 builder.Services.AddScoped(sp =>
 {
@@ -40,6 +43,8 @@ builder.Services.AddScoped(sp =>
 builder.Services.AddScoped<IApiService, ApiService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ActivityState>();
+
 
 // 🔒 احراز هویت و نقش‌ها
 builder.Services.AddAuthorizationCore();
