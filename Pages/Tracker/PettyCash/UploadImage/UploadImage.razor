@@ -1,0 +1,97 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@using BlazorApp1.Services.Interfaces
+@inject NavigationManager Nav          /* برای ساخت URL کامل در کلاینت */
+@inject IApiService ApiService   /* سرویس فراخوانی API */
+
+<div class="uploadimage-root">
+    <label class="uploadimage-label">آپلود رسید</label>
+
+    <InputFile OnChange="OnInputFileChange"
+               accept="image/*"
+               class="uploadimage-input" />
+
+    @if (!string.IsNullOrWhiteSpace(PreviewUrl))
+    {
+        <img src="@GetFullPreviewUrl()"
+             alt="رسید پیش‌نمایش"
+             class="uploadimage-preview"
+             @onclick="() => ShowModal = true" />
+    }
+
+    @if (ShowModal)
+    {
+        <div class="uploadimage-modal" @onclick="()=> ShowModal = false">
+            <div class="uploadimage-modal-content" @onclick:stopPropagation>
+                <img src="@GetFullPreviewUrl()"
+                     alt="رسید بزرگ"
+                     class="uploadimage-modal-img" />
+                <button class="uploadimage-modal-close"
+                        @onclick="()=> ShowModal = false">
+                    ×
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    /* —— پارامترها —— */
+    [Parameter] public string? Value { get; set; }   // URL فعلی (در حالت ویرایش)
+    [Parameter] public EventCallback<string?> OnChanged { get; set; }   // ارسال URL جدید به والد
+
+    /* —— وضعیت داخلی —— */
+    private string? PreviewUrl;   // چیزی که <img> نشان می‌دهد
+    private bool ShowModal;
+
+    /* —————————— رویداد انتخاب فایل —————————— */
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file == null) return;
+
+        /* 1) پیش‌نمایش فوری (Data URL) */
+        var buffer = new byte[file.Size];
+        await file.OpenReadStream().ReadAsync(buffer);
+        PreviewUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
+        StateHasChanged();      // <— فوراً تصویر کوچک را نشان بده
+
+        /* 2) ارسال به سرور */
+        var receiptUrl = await ApiService.UploadReceiptAsync(file);   // متد شما در IApiService
+        if (!string.IsNullOrWhiteSpace(receiptUrl))
+        {
+            PreviewUrl = receiptUrl;           // نسخهٔ نهایی روی سرور
+            await OnChanged.InvokeAsync(receiptUrl);
+        }
+        else
+        {
+            await OnChanged.InvokeAsync(null);
+        }
+
+        StateHasChanged();      // نمایش نسخهٔ سروری
+    }
+
+    /* —————————— وقتی والد پارامتر می‌دهد —————————— */
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrWhiteSpace(Value))
+            PreviewUrl = Value;
+    }
+
+    /* —————————— ساخت src نهایی برای <img> —————————— */
+    private string GetFullPreviewUrl()
+    {
+        if (string.IsNullOrWhiteSpace(PreviewUrl))
+            return string.Empty;
+
+        // 1) اگر «data:» یا URL مطلق باشد، همان را برگردان
+        if (PreviewUrl.StartsWith("data:", StringComparison.OrdinalIgnoreCase) ||
+            PreviewUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            PreviewUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            return PreviewUrl;
+        }
+
+        // 2) اگر نسبی است (مثل "/uploads/…") به مبدأ فعلی بچسبان
+        return $"{Nav.BaseUri.TrimEnd('/')}{PreviewUrl}";
+    }
+}

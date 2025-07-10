@@ -1,6 +1,326 @@
 ﻿@page "/PettyCash"
+@using BlazorApp1.Models
+@using BlazorApp1.Models.PettyCash
+@using BlazorApp1.Services.Interfaces
+@using BlazorApp1.Pages.Tracker.PettyCash.AddExpenseForm
+@using BlazorApp1.Pages.Tracker.PettyCash.ExpenseTableModal
+@using BlazorApp1.Pages.Tracker.PettyCash.Sidebar
+@using BlazorApp1.Components.Modal
+@inject IApiService ApiService
+@inject ISnackbar Snackbar
 
+<link href="css/PettyCash/PettyCashPage.css" rel="stylesheet" />
 
-<div class="flex justify-center">
-	<h1 class="bg-purple-500 text-black text-2xl p-6 text-center">مدیریت تنخواه 😍</h1>
-</div>
+<MudContainer Class="pettycash-layout-container">
+    <Sidebar PettyCashes="@PettyCashes"
+             OnSelectPetty="@(async id => await OpenExpenseListModal(id))" />
+
+    <MudContainer Class="main-content-area">
+        <div class="cards-row">
+            <div class="pettycash-card bg-indigo">
+                @if (IsEditingBudget)
+                {
+                    <div class="w-full text-center">
+                        <MudTextField T="int" Value="@TempBudget"
+                                      ValueChanged="@(v => TempBudget = v)"
+                                      Class="w-full pettycash-input"
+                                      Adornment="Adornment.None"
+                                      HideSpinButtons="true" />
+                        <div class="pettycash-btn-group">
+                            <MudButton StartIcon="@Icons.Material.Filled.Save" OnClick="SaveBudget" Variant="Variant.Filled" Color="Color.Success" Class="pettycash-btn">ذخیره</MudButton>
+                            <MudButton StartIcon="@Icons.Material.Filled.Close" OnClick="CancelEditBudget" Variant="Variant.Outlined" Color="Color.Secondary" Class="pettycash-btn">لغو</MudButton>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Class="edit-btn" OnClick="() => IsEditingBudget = true" />
+                    <h3 class="pettycash-card-title">بودجه ماهانه</h3>
+                    <p class="pettycash-card-value">@Budget.ToString("N0") تومان</p>
+                }
+            </div>
+
+            <div class="pettycash-card bg-rose">
+                <h3 class="pettycash-card-title">هزینه مصرف‌شده</h3>
+                <p class="pettycash-card-value">@TotalCurrentExpenses.ToString("N0") تومان</p>
+            </div>
+
+            <div class="pettycash-card @(Remaining >= 0 ? "bg-green" : "bg-rose-dark")">
+                <h3 class="pettycash-card-title">باقیمانده بودجه</h3>
+                <p class="pettycash-card-value">@Remaining.ToString("N0") تومان</p>
+            </div>
+        </div>
+
+        <div class="pettycash-action-row">
+            <MudButton StartIcon="@Icons.Material.Filled.Add" OnClick="OpenAddExpenseModal" Variant="Variant.Filled" Color="Color.Primary" Class="pettycash-action-btn">
+                افزودن هزینه جدید
+            </MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.AttachMoney" OnClick="OpenPettyModal" Variant="Variant.Filled" Color="Color.Warning" Class="pettycash-action-btn bg-yellow-btn">
+                ثبت تنخواه
+            </MudButton>
+        </div>
+
+        <!-- کارت‌های هزینه‌های جاری (همیشه نمایش بده) -->
+        <div class="pettycash-expenses-row">
+            @if (CurrentExpenses?.Count > 0)
+            {
+                @foreach (var item in CurrentExpenses)
+                {
+                    <div class="pettycash-expense-card">
+                        <div class="space-y-2">
+                            <p class="font-semibold text-gray-700">@item.Description</p>
+                            <p class="text-sm font-mono text-gray-500">@item.Date</p>
+                            <p class="text-xl font-extrabold">@item.Amount.ToString("N0") تومان</p>
+                            @if (!string.IsNullOrEmpty(item.ReceiptUrl))
+                            {
+                                <img src="@((item.ReceiptUrl.StartsWith("/") ? NavigationManager.BaseUri.TrimEnd('/') + item.ReceiptUrl : item.ReceiptUrl))"
+                                     alt="رسید" class="expense-receipt-img" />
+                            }
+                        </div>
+                        <div class="pettycash-expense-actions">
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Class="expense-edit-btn" OnClick="@(() => OpenEditExpenseModal(item))" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Class="expense-delete-btn" OnClick="@(() => HandleDeleteExpense(item.Id))" />
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="no-expense-label">هیچ هزینهٔ جاری‌ای ثبت نشده است.</p>
+            }
+        </div>
+    </MudContainer>
+</MudContainer>
+
+<Modal Open="@IsAddExpenseModalOpen" OnClose="CloseAddExpenseModal" Position="center">
+    <AddExpenseForm Model="@ExpenseFormModel"
+                    IsEditing="@IsEditingExpense"
+                    OnCancel="CloseAddExpenseModal"
+                    OnSaved="OnExpenseSaved" />
+</Modal>
+
+<Modal Open="@IsPettyModalOpen" OnClose="ClosePettyModal" Position="down">
+    <div class="pettycash-modal-title">ثبت تنخواه جدید</div>
+    <EditForm Model="@PettyFormModel" OnValidSubmit="HandleSavePettyCash" class="pettycash-modal-form">
+        <label class="pettycash-modal-label">عنوان تنخواه</label>
+        <InputText @bind-Value="PettyFormModel.Title" class="pettycash-modal-input" placeholder="مثلاً تنخواه تیرماه" required />
+        <ValidationMessage For="@(() => PettyFormModel.Title)" />
+        <div class="pettycash-modal-actions">
+            <button type="button" class="cancel-btn" @onclick="ClosePettyModal">لغو</button>
+            <button type="submit" class="ok-btn">ثبت تنخواه</button>
+        </div>
+    </EditForm>
+</Modal>
+
+<ExpenseTableModal Open="@IsExpenseListModalOpen"
+                   OpenChanged="@(x => IsExpenseListModalOpen = x)"
+                   Data="@ArchivedExpenses" />
+
+@code {
+    private List<PettyCashItemDto> PettyCashes { get; set; } = new();
+    private List<ExpenseItemDto> CurrentExpenses { get; set; } = new();
+    private List<ExpenseItemDto> ArchivedExpenses { get; set; } = new();
+
+    private int Budget { get; set; } = 5000000;
+    private bool IsEditingBudget { get; set; } = false;
+    private int TempBudget { get; set; }
+
+    private bool IsAddExpenseModalOpen { get; set; } = false;
+    private bool IsEditingExpense => EditingExpenseItem != null;
+    private ExpenseItemDto? EditingExpenseItem { get; set; }
+    private CreateExpenseDto ExpenseFormModel { get; set; } = new();
+
+    private bool IsPettyModalOpen { get; set; } = false;
+    private PettyCashFormModel PettyFormModel { get; set; } = new();
+
+    private bool IsExpenseListModalOpen { get; set; } = false;
+    private long? SelectedPettyId { get; set; } = null;
+
+    private int TotalCurrentExpenses => CurrentExpenses.Sum(e => (int)e.Amount);
+    private int Remaining => Budget - TotalCurrentExpenses;
+
+    [Inject] NavigationManager NavigationManager { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPettyCashes();
+        await LoadCurrentExpenses();
+        TempBudget = Budget;
+    }
+
+    private async Task LoadCurrentExpenses()
+    {
+        try
+        {
+            var res = await ApiService.GetCurrentExpensesAsync();
+            CurrentExpenses = res?.ToList() ?? new();
+            StateHasChanged();
+        }
+        catch
+        {
+            Snackbar.Add("خطا در دریافت هزینه‌های جاری", Severity.Error);
+        }
+    }
+
+    private async Task LoadPettyCashes()
+    {
+        try
+        {
+            var res = await ApiService.GetPettyCashesAsync();
+            PettyCashes = res?.ToList() ?? new();
+        }
+        catch
+        {
+            Snackbar.Add("خطا در دریافت فهرست تنخواه‌ها", Severity.Error);
+        }
+    }
+
+    private void OpenAddExpenseModal()
+    {
+        EditingExpenseItem = null;
+        ExpenseFormModel = new CreateExpenseDto();
+        IsAddExpenseModalOpen = true;
+    }
+
+    private void OpenEditExpenseModal(ExpenseItemDto item)
+    {
+        EditingExpenseItem = item;
+        ExpenseFormModel = new CreateExpenseDto
+            {
+                Date = item.Date,
+                Description = item.Description,
+                Amount = item.Amount,
+                ReceiptUrl = item.ReceiptUrl
+            };
+        IsAddExpenseModalOpen = true;
+    }
+
+    private void CloseAddExpenseModal()
+    {
+        IsAddExpenseModalOpen = false;
+        EditingExpenseItem = null;
+        ExpenseFormModel = new CreateExpenseDto();
+    }
+
+    private async Task OnExpenseSaved(CreateExpenseDto dto)
+    {
+        try
+        {
+            if (IsEditingExpense && EditingExpenseItem != null)
+            {
+                var editDto = new EditExpenseDto
+                    {
+                        Id = EditingExpenseItem.Id,
+                        Date = dto.Date,
+                        Description = dto.Description,
+                        Amount = dto.Amount,
+                        ReceiptUrl = dto.ReceiptUrl
+                    };
+                await ApiService.UpdateExpenseAsync(EditingExpenseItem.Id, editDto);
+            }
+            else
+            {
+                await ApiService.CreateExpenseAsync(dto);
+            }
+            await LoadCurrentExpenses();
+            CloseAddExpenseModal();
+        }
+        catch
+        {
+            Snackbar.Add("خطا در ثبت/ویرایش هزینه", Severity.Error);
+        }
+    }
+
+    private async Task HandleDeleteExpense(long id)
+    {
+        try
+        {
+            await ApiService.DeleteExpenseAsync(id);
+            await LoadCurrentExpenses();
+        }
+        catch
+        {
+            Snackbar.Add("خطا در حذف هزینه", Severity.Error);
+        }
+    }
+
+    private void SaveBudget()
+    {
+        Budget = TempBudget;
+        IsEditingBudget = false;
+    }
+
+    private void CancelEditBudget()
+    {
+        TempBudget = Budget;
+        IsEditingBudget = false;
+    }
+
+    private void OpenPettyModal()
+    {
+        PettyFormModel = new();
+        IsPettyModalOpen = true;
+    }
+
+    private void ClosePettyModal()
+    {
+        IsPettyModalOpen = false;
+        PettyFormModel = new();
+    }
+
+    private async Task HandleSavePettyCash()
+    {
+        if (string.IsNullOrWhiteSpace(PettyFormModel.Title)) return;
+        try
+        {
+            await ApiService.CreatePettyCashAsync(new CreatePettyCashDto { Title = PettyFormModel.Title.Trim() });
+            await LoadPettyCashes();
+            await LoadCurrentExpenses();
+            Budget = 5000000;
+            TempBudget = 5000000;
+            ClosePettyModal();
+        }
+        catch
+        {
+            Snackbar.Add("خطا در ثبت تنخواه", Severity.Error);
+        }
+    }
+
+    private async Task HandleDeletePettyCash(long id)
+    {
+        try
+        {
+            await ApiService.DeletePettyCashAsync(id);
+            await LoadPettyCashes();
+            if (SelectedPettyId == id)
+                CloseExpenseListModal();
+        }
+        catch
+        {
+            Snackbar.Add("خطا در حذف تنخواه", Severity.Error);
+        }
+    }
+
+    private async Task OpenExpenseListModal(long pettyId)
+    {
+        SelectedPettyId = pettyId;
+        try
+        {
+            var pc = await ApiService.GetPettyCashByIdAsync(pettyId);
+            ArchivedExpenses = pc?.Expenses?.ToList() ?? new();
+        }
+        catch
+        {
+            ArchivedExpenses = new();
+            Snackbar.Add("خطا در دریافت هزینه‌های تنخواه", Severity.Error);
+        }
+        IsExpenseListModalOpen = true;
+    }
+
+    private void CloseExpenseListModal()
+    {
+        IsExpenseListModalOpen = false;
+        SelectedPettyId = null;
+        ArchivedExpenses.Clear();
+    }
+}

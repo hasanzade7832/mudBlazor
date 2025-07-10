@@ -1,0 +1,27 @@
+﻿@using Microsoft.AspNetCore.Components.Web
+
+@if (Open)
+{
+    <div class="custom-modal-backdrop" @onclick="HandleClose">
+        <div class="custom-modal-dialog @PositionCss" @onclick:stopPropagation>
+            <button type="button" class="custom-modal-close" @onclick="HandleClose">×</button>
+            @ChildContent
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool Open { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public string Position { get; set; } = "center"; // center یا down
+    [Parameter] public RenderFragment ChildContent { get; set; }
+
+    private string PositionCss =>
+        Position == "down" ? "custom-modal-down" : "custom-modal-center";
+
+    private async Task HandleClose()
+    {
+        if (OnClose.HasDelegate)
+            await OnClose.InvokeAsync();
+    }
+}

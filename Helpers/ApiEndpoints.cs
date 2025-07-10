@@ -3,8 +3,8 @@
 public static class ApiEndpoints
 {
     // 🔐 Authentication
-    public const string Login = "/Login";
-    public const string Register = "/Register";
+    public const string Login = "Login";
+    public const string Register = "Register";
 
     // 👤 Profile
     public const string GetProfile = "Profile";
@@ -50,4 +50,23 @@ public static class ApiEndpoints
     public const string CreateAttendance = "TimeEntries";
     public const string GetAttendances = "TimeEntries";
     public static string DeleteAttendance(int id) => $"TimeEntries/{id}";
+
+    /* 🔹 Petty-Cash & Expense -------------------------------------------- */
+    public const string GetCurrentExpenses = "api/Expense";
+    public static string GetExpenseById(long id) => $"api/Expense/{id}";
+    public const string CreateExpense = "api/Expense";
+    public static string EditExpense(long id) => $"api/Expense/{id}";
+    public static string DeleteExpense(long id) => $"api/Expense/{id}";
+    public const string UploadReceipt = "api/Expense/UploadReceipt";
+
+    public const string GetPettyCashes = "api/PettyCash";
+    public static string GetPettyCashById(long id) => $"api/PettyCash/{id}";
+    public const string CreatePettyCash = "api/PettyCash";
+    public static string DeletePettyCash(long id) => $"api/PettyCash/{id}";
+    /* ------------------------------------------------------------------- */
+
+
+
 }
+
+

@@ -1,0 +1,31 @@
+﻿@using BlazorApp1.Models
+
+<div class="pettycash-sidebar">
+    <div class="sidebar-header">
+        <h2>کارت‌های تنخواه</h2>
+    </div>
+    <div class="sidebar-list">
+        @if (PettyCashes == null || !PettyCashes.Any())
+        {
+            <div class="sidebar-empty">هیچ تنخواهی ثبت نشده</div>
+        }
+        else
+        {
+            @foreach (var petty in PettyCashes)
+            {
+                <div class="sidebar-item"
+                     @onclick="() => OnSelectPetty.InvokeAsync(petty.Id)">
+                    <span class="sidebar-icon">
+                        <i class="fas fa-money-bill-alt"></i>
+                    </span>
+                    <span class="sidebar-title">@petty.Title</span>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public List<PettyCashItemDto> PettyCashes { get; set; }
+    [Parameter] public EventCallback<long> OnSelectPetty { get; set; }
+}

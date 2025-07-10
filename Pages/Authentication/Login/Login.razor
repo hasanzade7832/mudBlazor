@@ -1,0 +1,73 @@
+﻿@page "/login"
+
+@using BlazorApp1.Models
+@using BlazorApp1.Services.Interfaces
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@inherits LoginBase
+
+<div class="login-wrapper">
+    <div class="login-container">
+        <EditForm Model="_model" OnValidSubmit="HandleSubmit">
+            <MudPaper Elevation="12" Class="login-card">
+                <MudStack Spacing="0">
+
+                    <!-- تیتر -->
+                    <MudText Typo="Typo.h4" Align="Align.Center" Class="login-title">
+                        <MudIcon Icon="@Icons.Material.Filled.Login" class="icon-gap" />
+                        Sign in
+                    </MudText>
+
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <!-- فیلد Username -->
+                    <MudTextField T="string"
+                                  @bind-Value="_model.UserName"
+                                  Label="Username"
+                                  Required
+                                  Immediate
+                                  DisableUnderline="true"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Person"
+                                  Class="login-field" />
+
+                    <!-- فیلد Password (ایکون چشم در همان سمت) -->
+                    <MudTextField T="string"
+                                  @bind-Value="_model.Password"
+                                  Label="Password"
+                                  Required
+                                  Immediate
+                                  DisableUnderline="true"
+                                  InputType="@_passwordInputType"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@_passwordToggleIcon"
+                                  OnAdornmentClick="@TogglePassword"
+                                  Class="login-field" />
+
+                    <!-- دکمه‌ها -->
+                    <MudStack Class="action-stack" Spacing="2">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   FullWidth
+                                   Disabled="@_busy"
+                                   ButtonType="ButtonType.Submit"
+                                   Class="login-btn">
+                            <MudIcon Icon="@Icons.Material.Filled.Login" />
+                            <span class="btn-label">SIGN IN</span>
+                        </MudButton>
+
+                        <MudButton Variant="Variant.Filled"
+                                   FullWidth
+                                   OnClick="@(() => Navigation.NavigateTo("/signup"))"
+                                   Class="signup-btn">
+                            <MudIcon Icon="@Icons.Material.Filled.PersonAdd" />
+                            <span class="btn-label">SIGN UP</span>
+                        </MudButton>
+                    </MudStack>
+
+                </MudStack>
+            </MudPaper>
+        </EditForm>
+    </div>
+</div>

@@ -1,0 +1,193 @@
+﻿/***** حذف بک‌گراند آبی/زرد auto-fill کروم - نسخه تضمینی *****/
+.mud-input-root input:-webkit-autofill,
+.mud-input-root input:-webkit-autofill:focus,
+.mud-input-root input:-webkit-autofill:hover,
+.mud-input-root input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px #fff inset !important; /* ← دقیقا سفید */
+    box-shadow: 0 0 0 1000px #fff inset !important;
+    background-color: #fff !important;
+    -webkit-text-fill-color: #232323 !important; /* یا هر رنگ متن دلخواه */
+    caret-color: #232323 !important;
+    transition: background-color 9999s ease-in-out 0s;
+}
+/* حالت تاریک */
+@media (prefers-color-scheme: dark) {
+    .mud-input-root input:-webkit-autofill,
+    .mud-input-root input:-webkit-autofill:focus,
+    .mud-input-root input:-webkit-autofill:hover,
+    .mud-input-root input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 1000px #232323 inset !important;
+        box-shadow: 0 0 0 1000px #232323 inset !important;
+        background-color: #232323 !important;
+        -webkit-text-fill-color: #e5e7eb !important;
+        caret-color: #e5e7eb !important;
+    }
+}
+/***** END *****/
+
+/* ↓ پس‌زمینه اصلی فیلدها (غیر Auto-fill) */
+.mud-input-root .mud-input-slot {
+    background-color: #fff !important;
+    border-radius: 4px !important;
+}
+
+.mud-input-root input:focus {
+    background-color: #fff !important;
+}
+
+/* ↓ استایل عمومی لاگین */
+html, body, #app, main {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+body {
+    background: linear-gradient(135deg, #c7d2fe 0%, #e0e7ff 100%) fixed;
+}
+
+.login-wrapper {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-container {
+    width: 400px;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 1rem;
+    box-sizing: border-box;
+}
+
+.login-card {
+    width: 100%;
+    padding: 2rem 1.5rem 2.5rem;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #ffffffcc 0%, #ffffff99 100%) !important;
+    backdrop-filter: blur(8px) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+    background-clip: padding-box;
+}
+
+.login-title {
+    font-weight: 800;
+    color: #4338ca;
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem !important;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.login-btn, .signup-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important; /* فاصله زیاد برای تست */
+    direction: ltr !important; /* فقط برای تست */
+}
+
+
+.login-field .mud-input-root {
+    height: 48px;
+    border-radius: 10px;
+}
+
+.login-field {
+    margin-bottom: 1.5rem !important;
+}
+
+.action-stack {
+    margin-top: 1.5rem !important;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.login-btn, .signup-btn {
+    height: 48px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.signup-btn {
+    background: #4ade80 !important;
+    color: #fff !important;
+}
+
+    .signup-btn:hover {
+        background: #22c55e !important;
+    }
+
+.mud-main-content {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+.login-field .mud-input-adornment-start {
+    min-width: 34px !important;
+    justify-content: center;
+}
+
+    .login-field .mud-input-adornment-start .mud-icon-root {
+        margin-right: .4rem;
+    }
+
+.login-field .mud-input-slot input {
+    padding-left: 4px !important; /* متن به آیکون بچسبد */
+}
+
+.login-field .mud-input-adornment-start {
+    min-width: 28px !important;
+    width: 28px !important;
+    justify-content: center;
+}
+
+    .login-field .mud-input-adornment-start .mud-icon-root {
+        margin-right: 2px !important;
+    }
+
+/* لیبل بالا بماند */
+.mud-input-root input:-webkit-autofill ~ .mud-input-label,
+.mud-input-root.mud-is-filled .mud-input-label,
+.mud-input-root input:not(:placeholder-shown) ~ .mud-input-label {
+    transform: translate(12px, -9px) scale(.75) !important;
+    left: 0 !important;
+}
+
+/* ۱۱) حذف کامل هایلایت آبیِ Auto-fill (Chrome, Edge, …) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    /* سایهٔ داخل را همان رنگ پس‌زمینهٔ فیلد تنظیم می‌کنیم */
+    -webkit-box-shadow: 0 0 0 1000px #e8f0ff00 inset !important; /* 00 = کاملاً شفاف */
+    -webkit-text-fill-color: inherit !important; /* رنگ متن مثل بقیه باشد */
+    caret-color: inherit !important; /* رنگ کرسر یکدست */
+    transition: background-color 9999s ease-out; /* جلوگیری از فِلَش رنگ */
+}
+
+    /* ۱۲) وادار کردن لیبل به فِلوت‌ شدن وقتی ورودی Auto-fill است */
+    input:-webkit-autofill + .mud-input-label,
+    .mud-input-slot input:not(:placeholder-shown) + .mud-input-label {
+        transform: translate(12px, -9px) scale(.75) !important;
+        left: 0 !important;
+        /* اگر متن جایگزین بالا نرفت، این قانون آن را بالا می‌برد */
+    }
+.btn-label {
+    margin-left: 1em; /* فقط انگلیسی، متن سمت راست، آیکون سمت چپ */
+    font-weight: 700;
+    display: inline-block;
+}
+

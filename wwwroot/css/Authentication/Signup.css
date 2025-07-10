@@ -1,0 +1,107 @@
+﻿.signup-bg {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e0e7ff 100%) fixed;
+}
+
+.signup-card {
+    z-index: 10;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(67, 56, 202, 0.09), 0 1.5px 7px rgba(0,0,0,0.03);
+    padding: 1.3rem 1rem 1.3rem 1rem;
+    width: 100%;
+    max-width: 340px;
+    margin: 0.5rem;
+    transition: box-shadow .19s;
+}
+
+.signup-title {
+    font-size: 1.13rem;
+    font-weight: 700;
+    color: #4f46e5;
+    margin-bottom: 1.05rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.36rem;
+    letter-spacing: -.5px;
+    text-align: center;
+}
+.signup-title-icon {
+    color: #6366f1;
+    font-size: 1.1em;
+}
+
+.signup-form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.67rem;
+}
+
+/* MudBlazor fields جمع و جور */
+.signup-input .mud-input-root {
+    font-size: 0.97rem;
+    border-radius: 9px;
+    background: #f8fafc;
+}
+
+/* Floting Label Outlined is default in MudTextField with Variant.Outlined, nothing extra needed! */
+
+.signup-validation-summary {
+    color: #e53e3e;
+    font-size: 0.92rem;
+    margin-bottom: 0.75rem;
+    margin-top: -0.48rem;
+}
+
+.signup-submit-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.37em;
+    font-size: 1.01rem;
+    font-weight: 600;
+    padding: 0.47rem 0;
+    border-radius: 7px;
+    margin-top: 0.07rem;
+}
+
+.signup-back-btn {
+    width: 100%;
+    margin-top: 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.32em;
+    font-size: 0.98rem;
+    font-weight: 500;
+    padding: 0.43rem 0;
+    border-radius: 7px;
+}
+
+.btn-label {
+    margin-left: 0.23em;
+    font-weight: 500;
+    font-size: 0.95em;
+    display: inline-block;
+    letter-spacing: 0;
+}
+
+@media (max-width: 500px) {
+    .signup-card {
+        padding: 0.7rem 0.3rem 0.8rem 0.3rem;
+        max-width: 97vw;
+    }
+    .signup-title {
+        font-size: 0.98rem;
+    }
+    .signup-form-fields {
+        gap: 0.32rem;
+    }
+}

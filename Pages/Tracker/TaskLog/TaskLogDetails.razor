@@ -1,15 +1,12 @@
-﻿@page "/tracker/{id:int}"
+﻿@page "/TaskLog/Details/{id:int}"
 
 @using BlazorApp1.Models
-@using BlazorApp1.Services.Interfaces
-@using BlazorApp1.Services.State
 @using MudBlazor
 @using BlazorApp1.Components.TrackerWidgets
 
-@inject IApiService ApiService
-@inject NavigationManager NavManager
-@inject ISnackbar Snackbar
-@inject ActivityState ActivityState
+@inherits TaskLogDetailsBase
+
+<link href="css/TaskLog/TaskLogDetails.css" rel="stylesheet" />
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="py-10">
     @if (ActivityState.SelectedActivity is null)
@@ -48,7 +45,7 @@
         </MudGrid>
 
         <!-- فرم ثبت/ادامه رکورد جدید -->
-        <MudPaper Class="p-4 mb-8" Elevation="2">
+        <MudPaper Class="p-4 mb-8 tasklogdetails-form" Elevation="2">
             <MudGrid GutterSpacing="3" AlignItems="AlignItems.Center">
                 <!-- دکمه شروع/توقف -->
                 <MudItem xs="12" md="3" Class="d-flex align-center justify-center">
@@ -120,154 +117,3 @@
         </DialogActions>
     </MudDialog>
 </MudContainer>
-
-@code {
-    [Parameter] public int id { get; set; }
-
-    private List<ActivityDto> _records = new();
-    private int _seconds = 0;
-    private bool _isRunning = false;
-    private string _recordTitle = "";
-    private System.Threading.Timer? _timer;
-
-    private bool _isEditDialogOpen = false;
-    private int? _editingRecordId = null;
-    private string _editDialogTitle = "";
-    private string _editDialogDuration = "00:00:00";
-
-    protected override async Task OnInitializedAsync()
-    {
-        if (ActivityState.SelectedActivity is null)
-        {
-            var all = await ApiService.GetActivitiesAsync();
-            var found = all.FirstOrDefault(a => a.Id == id);
-            if (found != null)
-                ActivityState.SetActivity(found);
-        }
-        await LoadRecords();
-    }
-
-    private async Task LoadRecords()
-    {
-        var data = await ApiService.GetTimeRecordsByActivityAsync(id);
-        _records = data
-          .OrderByDescending(r => r.Id)
-          .Select(r => new ActivityDto
-              {
-                  Id = r.Id,
-                  Title = r.Title,
-                  TotalSeconds = ToSeconds(r.Duration)
-              })
-          .ToList();
-
-        // بروزرسانی مجموع در سرور
-        var sum = _records.Sum(x => x.TotalSeconds);
-        ActivityState.SelectedActivity!.TotalSeconds = sum;
-        await ApiService.UpdateActivityAsync(id, new ActivityDto
-            {
-                Id = id,
-                Title = ActivityState.SelectedActivity.Title,
-                TotalSeconds = sum
-            });
-    }
-
-    private void ToggleTimer()
-    {
-        _isRunning = !_isRunning;
-        if (_isRunning)
-        {
-            _timer = new System.Threading.Timer(_ =>
-            {
-                InvokeAsync(() =>
-      {
-          _seconds++;
-          StateHasChanged();
-      });
-            }, null, 1000, 1000);
-        }
-        else
-            _timer?.Dispose();
-    }
-
-    private async Task SaveRecord()
-    {
-        if (string.IsNullOrWhiteSpace(_recordTitle))
-        {
-            Snackbar.Add("عنوان رکورد الزامی است", Severity.Error);
-            return;
-        }
-        var now = DateTime.Now;
-        var dto = new TimeRecordDto
-            {
-                ActivityId = id,
-                Title = _recordTitle.Trim(),
-                CheckIn = now,
-                CheckOut = now.AddSeconds(_seconds),
-                Duration = FormatTime(_seconds)
-            };
-        if (await ApiService.CreateTimeRecordAsync(dto))
-        {
-            _recordTitle = "";
-            _seconds = 0;
-            await LoadRecords();
-            Snackbar.Add("رکورد ذخیره شد", Severity.Success);
-        }
-        else
-            Snackbar.Add("خطا در ذخیره رکورد", Severity.Error);
-    }
-
-    private void HandleEdit(ActivityDto rec)
-    {
-        _editingRecordId = rec.Id;
-        _editDialogTitle = rec.Title;
-        _editDialogDuration = FormatTime(rec.TotalSeconds);
-        _isEditDialogOpen = true;
-    }
-
-    private async Task SaveEditDialog()
-    {
-        if (_editingRecordId == null ||
-            string.IsNullOrWhiteSpace(_editDialogTitle) ||
-            !TimeSpan.TryParse(_editDialogDuration, out var ts))
-        {
-            Snackbar.Add("عنوان یا فرمت زمان صحیح نیست", Severity.Error);
-            return;
-        }
-        var dto = new TimeRecordDto
-            {
-                Id = _editingRecordId.Value,
-                ActivityId = id,
-                Title = _editDialogTitle.Trim(),
-                CheckIn = DateTime.Now.AddSeconds(-ts.TotalSeconds),
-                CheckOut = DateTime.Now,
-                Duration = _editDialogDuration
-            };
-        if (await ApiService.UpdateTimeRecordAsync(dto.Id, dto))
-        {
-            _isEditDialogOpen = false;
-            await LoadRecords();
-            Snackbar.Add("ویرایش انجام شد", Severity.Success);
-        }
-        else
-            Snackbar.Add("خطا در ویرایش رکورد", Severity.Error);
-    }
-
-    private async Task DeleteRecord(int recordId)
-    {
-        if (await ApiService.DeleteTimeRecordAsync(recordId))
-        {
-            await LoadRecords();
-            Snackbar.Add("رکورد حذف شد", Severity.Success);
-        }
-        else
-            Snackbar.Add("خطا در حذف رکورد", Severity.Error);
-    }
-
-    private void GoBack() => NavManager.NavigateTo("/ActivityPage");
-
-    private static string FormatTime(int sec)
-      => TimeSpan.FromSeconds(sec).ToString(@"hh\:mm\:ss");
-
-    private static int ToSeconds(string str)
-      => TimeSpan.TryParse(str, out var ts) ? (int)ts.TotalSeconds : 0;
-}

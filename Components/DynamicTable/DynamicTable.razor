@@ -1,0 +1,45 @@
+﻿@typeparam TItem
+@using MudBlazor
+
+<MudTable T="TItem" Items="Items" Hover="true" Striped="true" Dense="true" Class="dynamic-table">
+    <HeaderContent>
+        @foreach (var col in Columns)
+        {
+            <MudTh>@col.Title</MudTh>
+        }
+    </HeaderContent>
+    <RowTemplate>
+        @foreach (var col in Columns)
+        {
+            <MudTd>
+                @if (col.Template != null)
+                {
+                    @col.Template(context)
+                }
+                else
+                {
+                    @context?.GetType().GetProperty(col.Key)?.GetValue(context)
+                }
+            </MudTd>
+        }
+    </RowTemplate>
+</MudTable>
+
+@code {
+    public class TableColumn
+    {
+        public string Key { get; set; }
+        public string Title { get; set; }
+        public RenderFragment<TItem>? Template { get; set; }
+
+        public TableColumn(string key, string title, RenderFragment<TItem>? template = null)
+        {
+            Key = key;
+            Title = title;
+            Template = template;
+        }
+    }
+
+    [Parameter] public List<TItem> Items { get; set; } = new();
+    [Parameter] public List<TableColumn> Columns { get; set; } = new();
+}

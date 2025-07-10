@@ -1,5 +1,6 @@
 ﻿using BlazorApp1.Models;           // برای UserDto, ActivityDto, …  
 using BlazorApp1.Models.Auth;      // برای LoginDto, RegisterDto  
+using Microsoft.AspNetCore.Components.Forms;
 using System.Net.Http;             // برای MultipartFormDataContent
 namespace BlazorApp1.Services.Interfaces
 {
@@ -54,6 +55,21 @@ namespace BlazorApp1.Services.Interfaces
 
         /// <summary>پاک کردن هدر Authorization</summary>
         void ClearBearerToken();
+
+        // IApiService.cs
+        Task<List<ExpenseItemDto>> GetCurrentExpensesAsync();
+        Task<ExpenseItemDto?> GetExpenseByIdAsync(long id);
+        Task<bool> CreateExpenseAsync(CreateExpenseDto dto);
+        Task<bool> UpdateExpenseAsync(long id, EditExpenseDto dto);
+        Task<bool> DeleteExpenseAsync(long id);
+
+        Task<List<PettyCashItemDto>> GetPettyCashesAsync();
+        Task<PettyCashItemDto?> GetPettyCashByIdAsync(long id);
+        Task<bool> CreatePettyCashAsync(CreatePettyCashDto dto);
+        Task<bool> DeletePettyCashAsync(long id);
+
+        Task<string?> UploadReceiptAsync(IBrowserFile file);
+
 
     }
 }

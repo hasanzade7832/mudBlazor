@@ -1,0 +1,17 @@
+﻿.tasklog-table thead tr th {
+    text-align: center !important;
+    direction: ltr !important;
+    font-weight: bold;
+}
+
+.tasklog-table td {
+    padding: 0.6em 0.5em;
+    vertical-align: middle !important;
+}
+
+.tasklog-table .cell-center {
+    display: block;
+    width: 100%;
+    text-align: center !important;
+    direction: ltr;
+}

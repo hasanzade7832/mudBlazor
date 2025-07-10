@@ -1,0 +1,67 @@
+﻿@using BlazorApp1.Models
+@using BlazorApp1.Components.Modal
+
+@using MudBlazor
+
+<!-- مودال لیست هزینه‌ها -->
+<Modal Open="@Open" OnClose="CloseModal" Position="center">
+    <div class="expense-modal-content">
+        <h2 class="expense-modal-title">لیست هزینه‌ها</h2>
+        <MudTable Items="Data" Hover="true" Striped="true" Dense="true" Class="expense-table">
+            <HeaderContent>
+                <MudTh>شرح هزینه</MudTh>
+                <MudTh>تاریخ</MudTh>
+                <MudTh>مبلغ (تومان)</MudTh>
+                <MudTh>فاکتور</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Description</MudTd>
+                <MudTd>@context.Date</MudTd>
+                <MudTd>@context.Amount.ToString("N0")</MudTd>
+                <MudTd>
+                    @if (!string.IsNullOrEmpty(context.ReceiptUrl))
+                    {
+                        <img src="@context.ReceiptUrl"
+                             alt="فاکتور"
+                             class="expense-table-img"
+                             @onclick="() => ShowPreview(context.ReceiptUrl)" />
+                    }
+                    else
+                    {
+                        <span class="expense-table-noreceipt">ندارد</span>
+                    }
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </div>
+</Modal>
+
+<!-- مودال پیش‌نمایش تصویر -->
+<Modal Open="@_showPreview" OnClose="() => _showPreview = false" Position="center">
+    <div class="expense-preview-content">
+        @if (!string.IsNullOrEmpty(_previewImage))
+        {
+            <img src="@_previewImage" class="expense-preview-img" />
+        }
+    </div>
+</Modal>
+
+@code {
+    [Parameter] public bool Open { get; set; }
+    [Parameter] public EventCallback<bool> OpenChanged { get; set; }
+    [Parameter] public List<ExpenseItemDto> Data { get; set; } = new();
+
+    private bool _showPreview = false;
+    private string _previewImage;
+
+    private void ShowPreview(string url)
+    {
+        _previewImage = url;
+        _showPreview = true;
+    }
+
+    private Task CloseModal()
+    {
+        return OpenChanged.InvokeAsync(false);
+    }
+}

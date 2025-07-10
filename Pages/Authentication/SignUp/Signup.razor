@@ -1,0 +1,99 @@
+﻿@page "/signup"
+@using Blazored.Toast.Services
+@using BlazorApp1.Models.Auth
+@using BlazorApp1.Services.Interfaces
+@using MudBlazor
+
+@inject IApiService ApiService
+@inject NavigationManager Navigation
+@inject IToastService ToastService
+
+@inherits SignupBase
+
+<link href="css/Authentication/Signup.css" rel="stylesheet" />
+
+<div class="signup-bg">
+    <MudPaper Class="signup-card" Elevation="8">
+        <div class="signup-title">
+            <MudIcon Icon="@Icons.Material.Filled.PersonAdd" Class="signup-title-icon" />
+            Create an account
+        </div>
+        <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="signup-validation-summary" />
+
+            <div class="signup-form-fields">
+
+                <MudTextField @bind-Value="Model.UserName"
+                              Label="Username"
+                              Variant="Variant.Outlined"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Person"
+                              Immediate="true"
+                              Required="true"
+                              Class="signup-input"
+                              autocomplete="username" />
+
+                <MudTextField @bind-Value="Model.FullName"
+                              Label="Full Name"
+                              Variant="Variant.Outlined"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Person"
+                              Immediate="true"
+                              Required="true"
+                              Class="signup-input"
+                              autocomplete="name" />
+
+                <MudTextField @bind-Value="Model.Email"
+                              Label="Email"
+                              Variant="Variant.Outlined"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Email"
+                              Immediate="true"
+                              InputType="InputType.Email"
+                              Class="signup-input"
+                              autocomplete="email" />
+
+                <MudTextField @bind-Value="Model.PhoneNumber"
+                              Label="Phone Number"
+                              Variant="Variant.Outlined"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Phone"
+                              Immediate="true"
+                              Class="signup-input"
+                              autocomplete="tel" />
+
+                <MudTextField @bind-Value="Model.Password"
+                              Label="Password"
+                              Variant="Variant.Outlined"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@(ShowPassword ? Icons.Material.Filled.LockOpen : Icons.Material.Filled.Lock)"
+                              Immediate="true"
+                              Required="true"
+                              InputType="@(ShowPassword ? InputType.Text : InputType.Password)"
+                              Class="signup-input"
+                              autocomplete="new-password"
+                              OnAdornmentClick="TogglePassword" />
+
+                <MudButton Disabled="@IsLoading"
+                           Type="Submit"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           FullWidth
+                           Class="signup-submit-btn">
+                    <MudIcon Icon="@Icons.Material.Filled.PersonAdd" />
+                    <span class="btn-label">@((IsLoading ? "Signing up..." : "Sign Up"))</span>
+                </MudButton>
+            </div>
+        </EditForm>
+
+        <MudButton OnClick="BackToLogin"
+                   Variant="Variant.Outlined"
+                   Color="Color.Primary"
+                   FullWidth
+                   Class="signup-back-btn mt-2">
+            <MudIcon Icon="@Icons.Material.Filled.ArrowBack" />
+            <span class="btn-label">Back to Sign In</span>
+        </MudButton>
+    </MudPaper>
+</div>

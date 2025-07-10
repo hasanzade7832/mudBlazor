@@ -1,0 +1,67 @@
+﻿@using Microsoft.AspNetCore.Components.Web
+<link href="css/PettyCash/JalaliDatePicker.css" rel="stylesheet" />
+
+<div class="jalali-picker-root">
+    <input type="text"
+           class="jalali-picker-input"
+           placeholder="تاریخ به صورت ۱۴۰۳/۰۴/۲۱"
+           @bind="Value"
+           @bind:event="oninput"
+           readonly="@ReadOnly"
+           @onclick="() => ShowCal = true"
+           dir="ltr" />
+
+    @if (ShowCal)
+    {
+        <div class="jalali-picker-popup" @onclick="PreventPopupClose">
+            <MudDatePicker @bind-Date="DateValue"
+                           DateFormat="yyyy/MM/dd"
+                           PickerVariant="PickerVariant.Static"
+                           MaxDate="@MaxDate"
+                           MinDate="@MinDate"
+                           @onclose="OnCalClose" />
+        </div>
+        <div class="jalali-picker-overlay" @onclick="() => ShowCal = false"></div>
+    }
+</div>
+
+@code {
+    [Parameter] public string Value { get; set; }
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public DateTime? MaxDate { get; set; }
+    [Parameter] public DateTime? MinDate { get; set; }
+    [Parameter] public bool ReadOnly { get; set; } = false;
+
+    private bool ShowCal { get; set; } = false;
+
+    // برای نمایش و تبدیل تاریخ
+    private DateTime? DateValue
+    {
+        get
+        {
+            if (DateTime.TryParse(Value, out var dt))
+                return dt;
+            return null;
+        }
+        set
+        {
+            if (value != null)
+            {
+                var str = value.Value.ToString("yyyy/MM/dd");
+                Value = str;
+                ValueChanged.InvokeAsync(str);
+                ShowCal = false;
+            }
+        }
+    }
+
+    // جلوگیری از بسته شدن هنگام کلیک روی تقویم
+    private void PreventPopupClose(MouseEventArgs e) { }
+
+    // هندل بستن تقویم
+    private void OnCalClose()
+    {
+        ShowCal = false;
+        StateHasChanged();
+    }
+}

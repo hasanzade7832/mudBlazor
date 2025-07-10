@@ -1,0 +1,28 @@
+﻿.jalali-picker-root {
+    position: relative;
+    width: 100%;
+}
+
+.jalali-picker-input {
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.7rem;
+    border: 1px solid #e5e7eb;
+    font-size: 1rem;
+    background: #f9fafb;
+    text-align: center;
+    cursor: pointer;
+}
+
+.jalali-picker-popup {
+    position: absolute;
+    z-index: 1002;
+    right: 0;
+    top: 110%;
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px rgba(50,50,70,0.10);
+    min-width: 270px;
+    padding: 0.6rem 0.3rem 0.8rem 0.3rem;
+}
+

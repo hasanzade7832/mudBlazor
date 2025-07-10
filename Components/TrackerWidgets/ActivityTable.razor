@@ -1,53 +1,52 @@
 ﻿@using BlazorApp1.Models
 @using MudBlazor
 
-<MudTable Items="Items"
-          Hover="true"
-          Striped="true"
-          Dense="true">
-
+<MudTable Items="Items" Class="tasklog-table">
     <HeaderContent>
-        <MudTh class="text-end">#</MudTh>
-        <MudTh class="text-end">عنوان</MudTh>
-        <MudTh class="text-end">مدت</MudTh>
-        <MudTh class="text-center">عملیات</MudTh>
+        <MudTh>#</MudTh>
+        <MudTh>عنوان</MudTh>
+        <MudTh>مدت</MudTh>
+        <MudTh>عملیات</MudTh>
     </HeaderContent>
-
     <RowTemplate>
-        <MudTd class="text-end font-mono">@((Items.IndexOf(context) + 1))</MudTd>
-        <MudTd class="text-end">@context.Title</MudTd>
-        <MudTd class="text-end">
-            <MudChip T="string"
-                     Color="Color.Primary"
-                     Variant="Variant.Outlined"
-                     Icon="@Icons.Material.Filled.Schedule"
-                     Size="Size.Small">
-                @FormatTime(context.TotalSeconds)
-            </MudChip>
+        <MudTd><div class="cell-center">@(Items.IndexOf(context) + 1)</div></MudTd>
+        <MudTd><div class="cell-center">@context.Title</div></MudTd>
+        <MudTd>
+            <div class="cell-center">
+                <MudChip T="string"
+                         Color="Color.Primary"
+                         Variant="Variant.Outlined"
+                         Icon="@Icons.Material.Filled.Schedule"
+                         Size="Size.Small">
+                    @FormatTime(context.TotalSeconds)
+                </MudChip>
+            </div>
         </MudTd>
-        <MudTd class="text-center">
-            @if (ShowDetailsIcon)
-            {
-                <MudIconButton Icon="@Icons.Material.Filled.Visibility"
-                               Color="Color.Primary"
-                               Title="مشاهده جزئیات"
-                               OnClick="@(async () => await OnDetails.InvokeAsync(context.Id))"
+        <MudTd>
+            <div class="cell-center">
+                @if (ShowDetailsIcon)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Visibility"
+                                   Color="Color.Primary"
+                                   Title="مشاهده جزئیات"
+                                   OnClick="@(async () => await OnDetails.InvokeAsync(context.Id))"
+                                   Size="Size.Small" />
+                }
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Color="Color.Secondary"
+                               Title="ویرایش"
+                               OnClick="@(async () => await OnEdit.InvokeAsync(context))"
                                Size="Size.Small" />
-            }
-            <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                           Color="Color.Secondary"
-                           Title="ویرایش"
-                           OnClick="@(async () => await OnEdit.InvokeAsync(context))"
-                           Size="Size.Small" />
-
-            <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                           Color="Color.Error"
-                           Title="حذف"
-                           OnClick="@(async () => await OnDelete.InvokeAsync(context.Id))"
-                           Size="Size.Small" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Color="Color.Error"
+                               Title="حذف"
+                               OnClick="@(async () => await OnDelete.InvokeAsync(context.Id))"
+                               Size="Size.Small" />
+            </div>
         </MudTd>
     </RowTemplate>
 </MudTable>
+
 
 @code {
     [Parameter] public List<ActivityDto> Items { get; set; } = new();

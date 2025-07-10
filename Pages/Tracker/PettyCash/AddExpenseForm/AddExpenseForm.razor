@@ -1,0 +1,91 @@
+﻿@using BlazorApp1.Models
+@inject NavigationManager Nav
+@inject IConfiguration   Config  
+@using BlazorApp1.Models
+@using BlazorApp1.Pages.Tracker.PettyCash.UploadImage
+
+<div class="addexpense-form">
+    <h2 class="addexpense-title">
+        @((IsEditing ? "ویرایش هزینه" : "افزودن هزینه"))
+    </h2>
+
+    <EditForm Model="@Model"
+              OnValidSubmit="HandleSubmit"
+              class="addexpense-form-fields">
+
+        <!-- تاریخ -->
+        <div class="field-group">
+            <label class="field-label">تاریخ</label>
+            <InputText @bind-Value="Model.Date"
+                       class="field-input"
+                       required />
+        </div>
+
+        <!-- شرح هزینه -->
+        <div class="field-group">
+            <label class="field-label">شرح هزینه</label>
+            <InputText @bind-Value="Model.Description"
+                       class="field-input"
+                       required />
+        </div>
+
+        <!-- مبلغ -->
+        <div class="field-group">
+            <label class="field-label">مبلغ (تومان)</label>
+            <InputNumber @bind-Value="Model.Amount"
+                         class="field-input"
+                         required />
+        </div>
+
+        <!-- آپلود رسید -->
+        <UploadImage Value="@DisplayReceiptUrl"
+                     OnChanged="HandleImageChanged" />
+
+        <div class="form-actions">
+            <button type="button"
+                    class="cancel-btn"
+                    @onclick="CancelClicked">
+                انصراف
+            </button>
+            <button type="submit"
+                    class="ok-btn">
+                @((IsEditing ? "ذخیره تغییرات" : "ثبت هزینه"))
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    /* —— پارامترها —— */
+    [Parameter] public CreateExpenseDto        Model     { get; set; } = new();
+    [Parameter] public bool                    IsEditing { get; set; }
+    [Parameter] public EventCallback           OnCancel  { get; set; }
+    [Parameter] public EventCallback<CreateExpenseDto> OnSaved { get; set; }
+
+    /* —————————— هندلرها —————————— */
+    private void HandleImageChanged(string? url) => Model.ReceiptUrl = url;
+
+    private async Task HandleSubmit()          => await OnSaved.InvokeAsync(Model);
+    private async Task CancelClicked()         => await OnCancel.InvokeAsync();
+
+    /* —————————— آدرسِ تصویر برای UploadImage —————————— */
+    private string? DisplayReceiptUrl => BuildAbsoluteUrl(Model.ReceiptUrl);
+
+    private string? BuildAbsoluteUrl(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return null;
+
+        // اگر مطلق یا data: است، همان را برگردان
+        if (url.StartsWith("http", StringComparison.OrdinalIgnoreCase) ||
+            url.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+            return url;
+
+        // نسبی است → بچسبان به ApiBase (از appsettings.json)
+        var apiBase = Config["ApiBase"];   // در appsettings:  "ApiBase": "https://localhost:7106"
+        if (string.IsNullOrWhiteSpace(apiBase))
+            apiBase = Nav.BaseUri;         // fallback: مبدأ فعلی
+
+        return $"{apiBase.TrimEnd('/')}{url}";
+    }
+}
