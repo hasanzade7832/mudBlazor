@@ -2,9 +2,20 @@
 
 @if (Open)
 {
-    <div class="custom-modal-backdrop" @onclick="HandleClose">
-        <div class="custom-modal-dialog @PositionCss" @onclick:stopPropagation>
-            <button type="button" class="custom-modal-close" @onclick="HandleClose">×</button>
+    <div class="custom-modal-backdrop"
+         @onclick="HandleClose"
+         style="overflow-y:auto">
+        @* جلوگیری از اسکرول صفحهٔ پشت *@
+
+        <div class="custom-modal-dialog @PositionCss"
+        @onclick:stopPropagation>
+
+            <button type="button"
+                    class="custom-modal-close"
+                    @onclick="HandleClose">
+                ×
+            </button>
+
             @ChildContent
         </div>
     </div>
@@ -13,7 +24,7 @@
 @code {
     [Parameter] public bool Open { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
-    [Parameter] public string Position { get; set; } = "center"; // center یا down
+    [Parameter] public string Position { get; set; } = "center";   // center | down
     [Parameter] public RenderFragment ChildContent { get; set; }
 
     private string PositionCss =>

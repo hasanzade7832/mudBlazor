@@ -1,4 +1,5 @@
 ﻿using BlazorApp1.Models;           // برای UserDto, ActivityDto, …  
+using BlazorApp1.Models.Attendance;
 using BlazorApp1.Models.Auth;      // برای LoginDto, RegisterDto  
 using Microsoft.AspNetCore.Components.Forms;
 using System.Net.Http;             // برای MultipartFormDataContent
@@ -46,8 +47,8 @@ namespace BlazorApp1.Services.Interfaces
         Task<bool> DecrementEggAsync(string userId);
 
         // 📅 Attendance
-        Task<bool> CreateAttendanceAsync(AttendanceDto dto);
-        Task<List<AttendanceDto>> GetAttendancesAsync();
+        Task<bool> CreateAttendanceAsync(CreateTimeEntryRequest dto);
+        Task<List<TimeEntry>> GetAttendancesAsync();
         Task<bool> DeleteAttendanceAsync(int id);
 
         /// <summary>تنظیم هدر Authorization برای توکن</summary>

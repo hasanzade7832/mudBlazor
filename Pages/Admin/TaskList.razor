@@ -1,0 +1,89 @@
+﻿@using BlazorApp1.Models.TaskManagement
+@using BlazorApp1.Components.DynamicTable
+@using Microsoft.AspNetCore.Components
+@using MudBlazor
+
+<DynamicTable TItem="TaskDto"
+              Items="Tasks"
+              Columns="Columns" />
+
+@code {
+    [Parameter] public List<TaskDto> Tasks { get; set; } = new();
+    [Parameter] public List<SimpleUserDto> Users { get; set; } = new();
+
+    [Parameter] public EventCallback<(TaskDto Task, string UserId)> OnEdit { get; set; }
+    [Parameter] public EventCallback<int> OnDelete { get; set; }
+    [Parameter] public EventCallback<int> OnConfirm { get; set; }
+
+    private List<DynamicTable<TaskDto>.TableColumn> Columns => new()
+    {
+        new("Index", "#", task => @<text>
+        <span class="font-mono">@((Tasks.IndexOf(task) + 1))</span>
+    </text>),
+
+        new("Title", "عنوان", task => @<text>
+        <span>@task.Title</span>
+    </text>),
+
+        new("User", "کاربر", task => @<text>
+        @foreach (var ut in task.UserTasks)
+    {
+        <div>@(ut.User?.UserName ?? ut.UserId)</div>
+    }
+    </text>),
+
+        new("Deadline", "مهلت", task => @<text>
+        <span class="font-mono">@task.Deadline.ToLocalTime().ToString("yyyy/MM/dd")</span>
+    </text>),
+
+        new("Percent", "درصد", task => @<text>
+        @foreach (var ut in task.UserTasks)
+    {
+        <div>@ut.PercentComplete%</div>
+    }
+    </text>),
+
+        new("Status", "وضعیت", task => @<text>
+        @foreach (var ut in task.UserTasks)
+    {
+        <div>
+            @if (ut.IsConfirmedByAdmin)
+        {
+            <span class="text-green-600 font-bold">تأیید شد</span>
+        }
+        else if (ut.IsCompletedByUser)
+        {
+            <span class="text-amber-600 font-bold">در انتظار تأیید</span>
+        }
+        else
+        {
+            <span class="text-gray-500">در حال انجام</span>
+        }
+        </div>
+    }
+    </text>),
+
+        new("Actions", "عملیات", task => @<text>
+        @foreach (var ut in task.UserTasks)
+    {
+        <div class="flex justify-center gap-2 my-1">
+            <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                           Color="Color.Warning"
+                           Disabled="@ut.IsCompletedByUser"
+                           OnClick="() => OnEdit.InvokeAsync((task, ut.UserId))" />
+
+            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                           Color="Color.Error"
+                           OnClick="() => OnDelete.InvokeAsync(task.Id)" />
+
+            @if (ut.IsCompletedByUser && !ut.IsConfirmedByAdmin)
+        {
+            <MudIconButton Icon="@Icons.Material.Filled.Check"
+                           Color="Color.Success"
+                           OnClick="() => OnConfirm.InvokeAsync(ut.Id)" />
+        }
+        </div>
+    }
+    </text>),
+    };
+}

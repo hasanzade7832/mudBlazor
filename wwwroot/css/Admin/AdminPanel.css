@@ -1,0 +1,46 @@
+﻿.admin-panel-wrapper {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+    display: flex;
+    justify-content: center;
+}
+
+.admin-title {
+    font-weight: 800;
+    color: #4338ca;
+    margin-bottom: 2rem;
+}
+
+.admin-btn-row {
+    display: flex;
+    gap: 2rem; /* فاصله مطمئن بین کارت‌ها */
+    flex-wrap: nowrap;
+    justify-content: center;
+}
+
+.admin-btn {
+    width: 18rem;
+    height: 10rem;
+    border-radius: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.4s ease-in-out;
+    text-align: center;
+}
+
+    .admin-btn:hover {
+        transform: scale(1.05);
+    }
+
+    .admin-btn.users {
+        background: linear-gradient(to bottom right, #ec4899, #ef4444, #f97316);
+    }
+
+    .admin-btn.tasks {
+        background: linear-gradient(to bottom right, #10b981, #14b8a6, #06b6d4);
+    }

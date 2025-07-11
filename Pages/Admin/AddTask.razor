@@ -1,0 +1,160 @@
+﻿@* AddTask.razor — نسخهٔ نهایی *@
+@using MudBlazor
+@using BlazorApp1.Models.TaskManagement
+@using System.ComponentModel.DataAnnotations
+
+<MudPaper Class="pa-4">
+
+    <MudForm @ref="form"
+             @bind-IsValid="isValid"
+             @bind-Errors="errors">
+
+        <MudText Typo="Typo.h6" Class="mb-4">
+            @(IsEditing ? "ویرایش تسک" : "تسک جدید")
+        </MudText>
+
+        <!-- عنوان -->
+        <MudTextField T="string"
+                      Label="عنوان"
+                      @bind-Value="_model.Title"
+                      Required="true"
+                      RequiredError="عنوان اجباری است!" />
+
+        <!-- توضیحات -->
+        <MudTextField T="string"
+                      Label="توضیحات"
+                      @bind-Value="_model.Description"
+                      TextArea="true"
+                      Lines="3" />
+
+        <!-- مهلت انجام -->
+        <MudDatePicker T="DateTime?"
+                       Label="مهلت انجام"
+                       @bind-Date="_deadline"
+                       Required="true"
+                       RequiredError="تاریخ را انتخاب کنید!"
+                       Validation="ValidateDeadline" />
+
+        <!-- کاربر مسئول -->
+        <MudSelect T="string"
+                   Label="کاربر مسئول"
+                   Placeholder="-- انتخاب کاربر --"
+                   @bind-Value="_selectedUserId"
+                   Required="true"
+                   RequiredError="کاربر را انتخاب کنید!">
+            @foreach (var u in Users)
+            {
+                <MudSelectItem T="string" Value="@u.Id">@u.UserName</MudSelectItem>
+            }
+        </MudSelect>
+
+        <!-- دکمه‌ها -->
+        <MudStack Direction="Row" Spacing="2" Class="mt-4">
+           
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Disabled="@Loading"
+                       OnClick="SaveClicked">
+                @(IsEditing ? "ذخیره تغییرات" : "ثبت تسک")
+            </MudButton>
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Secondary"
+                       Disabled="@Loading"
+                       OnClick="CancelClicked">
+                انصراف
+            </MudButton>
+        </MudStack>
+
+        @if (errors.Length > 0)
+        {
+            <MudText Typo="Typo.subtitle2" Class="mt-3">خطاها:</MudText>
+            @foreach (var err in errors)
+            {
+                <MudText Color="Color.Error">@err</MudText>
+            }
+        }
+    </MudForm>
+
+</MudPaper>
+
+@code {
+    /* ---------- پارامترها ---------- */
+    [Parameter] public List<SimpleUserDto> Users { get; set; } = new();
+    [Parameter] public bool IsEditing { get; set; }
+    [Parameter]
+    public string? Mode
+    {
+        get => IsEditing ? "edit" : "add";
+        set => IsEditing = string.Equals(value, "edit", StringComparison.OrdinalIgnoreCase);
+    }
+    [Parameter] public CreateTaskDto? Model { get; set; }
+    [Parameter] public CreateTaskDto? InitialData { get; set; }
+    [Parameter] public EventCallback<CreateTaskDto> OnSubmit { get; set; }
+    [Parameter] public EventCallback<CreateTaskDto> OnSaved { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public bool Loading { get; set; }
+
+    /* ---------- State ---------- */
+    private CreateTaskDto _model = new();
+    private string _selectedUserId = string.Empty;
+    private DateTime? _deadline;
+    private MudForm? form;
+    private bool isValid;
+    private string[] errors = { };
+
+    /* ---------- مقداردهی اولیه ---------- */
+    protected override void OnParametersSet()
+    {
+        if (Model is not null) _model = Clone(Model);
+        else if (InitialData is not null) _model = Clone(InitialData);
+        else if (string.IsNullOrWhiteSpace(_model.Title))
+            _model = new() { Deadline = DateTime.Today };
+
+        _selectedUserId = _model.UserIds?.FirstOrDefault() ?? string.Empty;
+
+        // اگر Deadline تهی یا صفر بود => امروز
+        _deadline = _model.Deadline == default
+            ? DateTime.Today
+            : _model.Deadline;
+    }
+
+    /* ---------- ثبت ---------- */
+    private async Task SaveClicked()
+    {
+        await form!.Validate();
+        if (!form.IsValid) return;
+
+        _model.UserIds = new() { _selectedUserId };
+        _model.Deadline = _deadline ?? DateTime.Today;
+
+        // یک‌بار فراخوانی API
+        if (OnSubmit.HasDelegate)
+            await OnSubmit.InvokeAsync(_model);
+        else if (OnSaved.HasDelegate)
+            await OnSaved.InvokeAsync(_model);
+    }
+
+    /* ---------- انصراف ---------- */
+    private async Task CancelClicked()
+    {
+        if (OnCancel.HasDelegate)
+            await OnCancel.InvokeAsync();
+    }
+
+    /* ---------- اعتبارسنجی تاریخ ---------- */
+    private IEnumerable<string> ValidateDeadline(DateTime? date)
+    {
+        if (date is null) yield break;
+        if (date.Value.Date < DateTime.Today)
+            yield return "تاریخ نمی‌تواند قبل از امروز باشد!";
+    }
+
+    /* ---------- Helper ---------- */
+    private static CreateTaskDto Clone(CreateTaskDto src) => new()
+        {
+            Title = src.Title,
+            Description = src.Description,
+            Deadline = src.Deadline,
+            UserIds = new(src.UserIds ?? new List<string>())
+        };
+}

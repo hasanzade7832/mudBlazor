@@ -37,17 +37,27 @@
         <MudMenu AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" Class="mx-2">
             <ActivatorContent>
                 <MudButton Variant="Variant.Text" Color="Color.Inherit"
-                           Class="nav-compact-btn flex items-center gap-2">
+                           Class="nav-compact-btn flex items-center gap-3">
+                    @* ← فاصله بیشتر اینجا *@
                     <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Size="Size.Medium" />
-                    <span>@UserNameLocal</span>
+                    <span style="margin-inline: 0.4rem;">@UserNameLocal</span>
                     <MudIcon Icon="@Icons.Material.Filled.KeyboardArrowDown" />
                 </MudButton>
             </ActivatorContent>
 
             <ChildContent>
-                <MudMenuItem OnClick="GoToProfile" Class="user-menu-item">
-                    پروفایل کاربری
-                </MudMenuItem>
+                @if (IsAdminLocal)
+                {
+                    <MudMenuItem OnClick="GoToAdminPanel" Class="user-menu-item">
+                        پنل ادمین
+                    </MudMenuItem>
+                }
+                else
+                {
+                    <MudMenuItem OnClick="GoToProfile" Class="user-menu-item">
+                        پروفایل کاربری
+                    </MudMenuItem>
+                }
                 <MudMenuItem OnClick="Logout" Class="user-menu-item exit">
                     خروج
                 </MudMenuItem>
@@ -73,9 +83,19 @@
 
             <MudDivider />
 
-            <MudMenuItem OnClick="GoToProfile" Class="mobile-menu-item">
-                پروفایل کاربری
-            </MudMenuItem>
+            @if (IsAdminLocal)
+            {
+                <MudMenuItem OnClick="GoToAdminPanel" Class="mobile-menu-item">
+                    پنل ادمین
+                </MudMenuItem>
+            }
+            else
+            {
+                <MudMenuItem OnClick="GoToProfile" Class="mobile-menu-item">
+                    پروفایل کاربری
+                </MudMenuItem>
+            }
+
             <MudMenuItem OnClick="Logout" Class="mobile-menu-item exit">
                 خروج
             </MudMenuItem>
@@ -95,13 +115,13 @@
 
     private IEnumerable<MenuItem> MenuItems => new MenuItem[]
     {
-    new MenuItem("/Egg",            "تخم‌مرغ‌ها",    Icons.Material.Filled.BreakfastDining),
-    new MenuItem("/Internet",       "هزینه اینترنت", Icons.Material.Filled.Public),
-    new MenuItem("/PettyCash",      "تنخواه",        Icons.Material.Filled.CreditCard, IsAdminLocal),
-    new MenuItem("/TaskLog",   "تایم‌ترکر",     Icons.Material.Filled.AccessTime),
-    new MenuItem("/TaskManagement", "تسک",           Icons.Material.Filled.ListAlt,    IsAdminLocal),
-    new MenuItem("/Attendance",     "حضور",          Icons.Material.Filled.Schedule),
-    new MenuItem("/home",           "خانه",          Icons.Material.Filled.Home)
+        new MenuItem("/Egg",            "تخم‌مرغ‌ها",    Icons.Material.Filled.BreakfastDining),
+        new MenuItem("/Internet",       "هزینه اینترنت", Icons.Material.Filled.Public),
+        new MenuItem("/PettyCash",      "تنخواه",        Icons.Material.Filled.CreditCard, IsAdminLocal),
+        new MenuItem("/TaskLog",        "تایم‌ترکر",     Icons.Material.Filled.AccessTime),
+        new MenuItem("/TaskManagement", "تسک",           Icons.Material.Filled.ListAlt, IsAdminLocal),
+        new MenuItem("/Attendance",     "حضور",          Icons.Material.Filled.Schedule),
+        new MenuItem("/home",           "خانه",          Icons.Material.Filled.Home)
     };
 
     /* ---------- چرخهٔ حیات ---------- */
@@ -128,13 +148,10 @@
 
         if (string.IsNullOrEmpty(json))
         {
-            // آدرس فعلی
             var rel = NavManager.ToBaseRelativePath(NavManager.Uri).Trim('/').ToLowerInvariant();
-
-            // اگر همین الآن در /login یا /signup هستیم، بی‌دلیل ریدایرکت نکن!
             if (rel is not ("login" or "signup"))
             {
-                NavManager.NavigateTo("/login"); // forceLoad لازم نیست
+                NavManager.NavigateTo("/login");
             }
             return;
         }
@@ -150,6 +167,7 @@
 
     /* ---------- عملیات ---------- */
     private void GoToProfile() => NavManager.NavigateTo("/profile");
+    private void GoToAdminPanel() => NavManager.NavigateTo("/admin");
     private async Task Logout()
     {
         await JS.InvokeVoidAsync("localStorage.removeItem", "user");

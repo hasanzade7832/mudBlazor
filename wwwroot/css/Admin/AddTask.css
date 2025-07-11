@@ -1,0 +1,9 @@
+﻿.addtask-title {
+    font-weight: 800;
+    color: #4f46e5; /* text-indigo-600 */
+    margin-bottom: 1rem;
+}
+
+.addtask-input {
+    direction: rtl;
+}

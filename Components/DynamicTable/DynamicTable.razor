@@ -1,17 +1,17 @@
 ﻿@typeparam TItem
 @using MudBlazor
 
-<MudTable T="TItem" Items="Items" Hover="true" Striped="true" Dense="true" Class="dynamic-table">
+<MudTable T="TItem" Items="Items" Hover="true" Striped="true" Dense="true" Class="custom-dynamic-table">
     <HeaderContent>
         @foreach (var col in Columns)
         {
-            <MudTh>@col.Title</MudTh>
+            <MudTh Align="Center">@col.Title</MudTh>
         }
     </HeaderContent>
     <RowTemplate>
         @foreach (var col in Columns)
         {
-            <MudTd>
+            <MudTd Align="Center">
                 @if (col.Template != null)
                 {
                     @col.Template(context)
@@ -24,6 +24,29 @@
         }
     </RowTemplate>
 </MudTable>
+
+<style>
+    .custom-dynamic-table {
+        border: 1px solid #c7d2fe;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 0 10px #e0e7ff;
+    }
+
+    .mud-table {
+        background-color: #f9fafb;
+    }
+
+    .mud-table-header {
+        background-color: #3b82f6;
+        color: white;
+        text-align: center;
+    }
+
+    .mud-table-cell {
+        text-align: center;
+    }
+</style>
 
 @code {
     public class TableColumn

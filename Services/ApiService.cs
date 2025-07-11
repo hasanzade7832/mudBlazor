@@ -1,5 +1,6 @@
 ﻿using BlazorApp1.Helpers;             // برای ApiEndpoints  
 using BlazorApp1.Models;              // UserDto, ActivityDto, …  
+using BlazorApp1.Models.Attendance;
 using BlazorApp1.Models.Auth;         // LoginDto, RegisterDto  
 using BlazorApp1.Services.Interfaces;
 using Microsoft.AspNetCore.Components.Forms;
@@ -139,18 +140,24 @@ namespace BlazorApp1.Services
             .IsSuccessStatusCode;
 
         // 📅 Attendance
-        public async Task<bool> CreateAttendanceAsync(AttendanceDto dto) =>
-            (await _http.PostAsJsonAsync(ApiEndpoints.CreateAttendance, dto))
-            .IsSuccessStatusCode;
 
-        public async Task<List<AttendanceDto>> GetAttendancesAsync() =>
-            await _http.GetFromJsonAsync<List<AttendanceDto>>(ApiEndpoints.GetAttendances)
-            ?? new();
+        public async Task<bool> CreateAttendanceAsync(CreateTimeEntryRequest dto)
+        {
+            var response = await _http.PostAsJsonAsync(ApiEndpoints.CreateAttendance, dto);
+            return response.IsSuccessStatusCode;
+        }
 
-        public async Task<bool> DeleteAttendanceAsync(int id) =>
-            (await _http.DeleteAsync(ApiEndpoints.DeleteAttendance(id)))
-            .IsSuccessStatusCode;
+        public async Task<List<TimeEntry>> GetAttendancesAsync()
+        {
+            var result = await _http.GetFromJsonAsync<List<TimeEntry>>(ApiEndpoints.GetAttendances);
+            return result ?? new();
+        }
 
+        public async Task<bool> DeleteAttendanceAsync(int id)
+        {
+            var response = await _http.DeleteAsync(ApiEndpoints.DeleteAttendance(id));
+            return response.IsSuccessStatusCode;
+        }
         public void SetBearerToken(string token)
         {
             _http.DefaultRequestHeaders.Authorization =

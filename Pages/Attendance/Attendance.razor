@@ -1,0 +1,311 @@
+﻿@page "/attendance"
+@using BlazorApp1.Models.Attendance
+@using BlazorApp1.Components.Modal
+@using BlazorApp1.Components.DynamicTable
+@using BlazorApp1.Services.Interfaces
+@inject IApiService ApiService
+
+<div class="attendance-page">
+    <div class="attendance-wrapper">
+        <div class="attendance-columns">
+
+            <!-- ساعت و دکمه‌ها -->
+            <div class="clock-section">
+                <div class="digital-clock">
+                    @Now.ToString("HH:mm:ss")
+                </div>
+                <div class="elapsed-label">زمان کار انجام شده: @ElapsedStr</div>
+                <div class="button-group">
+                    <button @onclick="HandleCheckIn" disabled="@StartTime.HasValue" class="btn btn-checkin">ورود</button>
+                    <button @onclick="HandleCheckOut" disabled="@(!StartTime.HasValue)" class="btn btn-checkout">خروج</button>
+                </div>
+            </div>
+
+            <!-- جدول -->
+            <div class="table-section">
+                <div class="total-duration-label">مجموع کل زمان: @TotalDuration</div>
+                <DynamicTable TItem="TimeEntry"
+                              Items="Entries"
+                              Columns="Columns" />
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال ثبت خروج -->
+    <Modal Open="@IsModalOpen" OnClose="@(() => IsModalOpen = false)">
+        <div class="modal-body">
+            <h3>ثبت خروج</h3>
+            <p>کارهای انجام‌شده را وارد کنید:</p>
+            <textarea @bind="Tasks" class="task-textarea" rows="3"></textarea>
+            <div class="modal-buttons">
+                <button class="btn btn-cancel" @onclick="() => IsModalOpen = false">انصراف</button>
+                <button class="btn btn-confirm" @onclick="ConfirmCheckOut">ثبت</button>
+            </div>
+        </div>
+    </Modal>
+</div>
+
+@code {
+    private DateTime Now = DateTime.Now;
+    private DateTime? StartTime = null;
+    private DateTime? StopTime = null; // ⏹️ زمان دقیق خروج (کلیک روی خروج)
+    private string Tasks = "";
+    private List<TimeEntry> Entries = new();
+    private bool IsModalOpen = false;
+
+    private System.Timers.Timer? ClockTimer;
+    private System.Timers.Timer? ElapsedTimer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEntries();
+
+        ClockTimer = new System.Timers.Timer(1000);
+        ClockTimer.Elapsed += (s, e) =>
+        {
+            Now = DateTime.Now;
+            InvokeAsync(StateHasChanged);
+        };
+        ClockTimer.Start();
+    }
+
+    private async Task LoadEntries()
+    {
+        Entries = await ApiService.GetAttendancesAsync();
+    }
+
+    private void HandleCheckIn()
+    {
+        StartTime = DateTime.Now;
+
+        // راه‌اندازی تایمر زمان سپری‌شده
+        ElapsedTimer?.Stop();
+        ElapsedTimer?.Dispose();
+
+        ElapsedTimer = new System.Timers.Timer(1000);
+        ElapsedTimer.Elapsed += (s, e) =>
+        {
+            InvokeAsync(StateHasChanged);
+        };
+        ElapsedTimer.Start();
+    }
+
+    private void HandleCheckOut()
+    {
+        if (!StartTime.HasValue) return;
+
+        StopTime = DateTime.Now;       // زمان دقیق خروج (لحظه کلیک)
+        ElapsedTimer?.Stop();          // متوقف کردن تایمر
+        ElapsedTimer?.Dispose();
+
+        IsModalOpen = true;            // سپس باز کردن مودال
+    }
+
+    private async Task ConfirmCheckOut()
+    {
+        if (!StartTime.HasValue || !StopTime.HasValue) return;
+
+        var diff = StopTime.Value - StartTime.Value;
+        var duration = $"{(int)diff.TotalHours:D2}:{diff.Minutes:D2}:{diff.Seconds:D2}";
+
+        var model = new CreateTimeEntryRequest
+            {
+                CheckIn = StartTime.Value,
+                CheckOut = StopTime.Value,
+                Duration = duration,
+                Tasks = string.IsNullOrWhiteSpace(Tasks) ? "—" : Tasks,
+                ShamsiDate = Now.ToString("yyyy/MM/dd")
+            };
+
+        var success = await ApiService.CreateAttendanceAsync(model);
+        if (success)
+        {
+            await LoadEntries();
+            StartTime = null;
+            StopTime = null;
+            Tasks = "";
+            IsModalOpen = false;
+        }
+    }
+
+    private string ElapsedStr =>
+        StartTime.HasValue
+            ? (DateTime.Now - StartTime.Value).ToString(@"hh\:mm\:ss")
+            : "00:00:00";
+
+    private string TotalDuration
+    {
+        get
+        {
+            var total = TimeSpan.Zero;
+            foreach (var e in Entries)
+            {
+                if (TimeSpan.TryParse(e.Duration, out var t))
+                    total += t;
+            }
+            return $"{(int)total.TotalHours:D2}:{total.Minutes:D2}:{total.Seconds:D2}";
+        }
+    }
+
+    private List<DynamicTable<TimeEntry>.TableColumn> Columns => new()
+    {
+        new("checkIn", "ورود", e => builder => builder.AddContent(0, FormatTime(e.CheckIn))),
+        new("checkOut", "خروج", e => builder => builder.AddContent(0, FormatTime(e.CheckOut))),
+        new("duration", "مدت زمان", e => builder => builder.AddContent(0, e.Duration)),
+        new("tasks", "کارهای امروز", e => builder => builder.AddContent(0, e.Tasks)),
+        new("shamsiDate", "تاریخ", e => builder => builder.AddContent(0, e.ShamsiDate))
+    };
+
+    private string FormatTime(DateTime? time)
+    {
+        return time.HasValue ? time.Value.ToString("HH:mm:ss") : "—";
+    }
+}
+
+
+<style>
+    .attendance-page {
+        padding: 2rem;
+        display: flex;
+        justify-content: center;
+    }
+
+    .attendance-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+    }
+
+    .attendance-columns {
+        display: flex;
+        flex-direction: row-reverse; /* دکمه و ساعت سمت راست */
+        gap: 4rem; /* فاصله بین دو ستون */
+        align-items: flex-start;
+        max-width: 1100px;
+        width: 100%;
+    }
+
+    .table-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .clock-section {
+        width: 300px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .clock-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .table-section {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .digital-clock {
+        font-size: 48px;
+        font-family: 'Courier New', Courier, monospace;
+        color: #2563eb;
+        border: 2px solid #2563eb;
+        border-radius: 12px;
+        padding: 10px 20px;
+        background-color: #eff6ff;
+        box-shadow: 0 0 10px #dbeafe;
+    }
+
+    .elapsed-label {
+        font-size: 16px;
+        font-weight: bold;
+        color: #555;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-checkin {
+        background-color: #10b981;
+        color: white;
+    }
+
+        .btn-checkin:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+    .btn-checkout {
+        background-color: #ef4444;
+        color: white;
+    }
+
+        .btn-checkout:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+    .total-duration-label {
+        font-weight: bold;
+        text-align: center;
+        font-size: 18px;
+    }
+
+    .modal-body {
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .task-textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        resize: vertical;
+        margin-bottom: 1rem;
+    }
+
+    .modal-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .btn-cancel {
+        background-color: #ef4444;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        border: none;
+    }
+
+    .btn-confirm {
+        background-color: #10b981;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        border: none;
+    }
+</style>

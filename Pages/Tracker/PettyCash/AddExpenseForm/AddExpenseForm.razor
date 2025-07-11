@@ -1,74 +1,128 @@
-﻿@using BlazorApp1.Models
-@inject NavigationManager Nav
-@inject IConfiguration   Config  
+﻿@* AddExpense.razor *@
+@using MudBlazor
 @using BlazorApp1.Models
 @using BlazorApp1.Pages.Tracker.PettyCash.UploadImage
+@inject NavigationManager Nav
+@inject IConfiguration Config
 
-<div class="addexpense-form">
-    <h2 class="addexpense-title">
-        @((IsEditing ? "ویرایش هزینه" : "افزودن هزینه"))
-    </h2>
+<MudPaper Class="pa-4">
 
-    <EditForm Model="@Model"
-              OnValidSubmit="HandleSubmit"
-              class="addexpense-form-fields">
+    <MudForm @ref="form"
+             @bind-IsValid="isValid"
+             @bind-Errors="errors">
+
+        <MudText Typo="Typo.h6" Class="mb-4">
+            @(IsEditing ? "ویرایش هزینه" : "افزودن هزینه")
+        </MudText>
 
         <!-- تاریخ -->
-        <div class="field-group">
-            <label class="field-label">تاریخ</label>
-            <InputText @bind-Value="Model.Date"
-                       class="field-input"
-                       required />
-        </div>
+        <MudDatePicker T="DateTime?"
+                       Label="تاریخ"
+                       @bind-Date="_date"
+                       Required="true"
+                       RequiredError="تاریخ را وارد کنید!" />
 
         <!-- شرح هزینه -->
-        <div class="field-group">
-            <label class="field-label">شرح هزینه</label>
-            <InputText @bind-Value="Model.Description"
-                       class="field-input"
-                       required />
-        </div>
+        <MudTextField T="string"
+                      Label="شرح هزینه"
+                      @bind-Value="Model.Description"
+                      Required="true"
+                      RequiredError="شرح الزامی است!" />
 
         <!-- مبلغ -->
-        <div class="field-group">
-            <label class="field-label">مبلغ (تومان)</label>
-            <InputNumber @bind-Value="Model.Amount"
-                         class="field-input"
-                         required />
-        </div>
+        <MudNumericField T="long"
+                         Label="مبلغ (تومان)"
+                         @bind-Value="Model.Amount"
+                         Required="true"
+                         RequiredError="مبلغ الزامی است!"
+                         Adornment="Adornment.Start"
+                         AdornmentText="﷼" />
 
         <!-- آپلود رسید -->
         <UploadImage Value="@DisplayReceiptUrl"
                      OnChanged="HandleImageChanged" />
 
-        <div class="form-actions">
-            <button type="button"
-                    class="cancel-btn"
-                    @onclick="CancelClicked">
+        <!-- دکمه‌ها -->
+        <MudStack Direction="Row" Spacing="2" Class="mt-4">
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Secondary"
+                       Disabled="@Loading"
+                       OnClick="CancelClicked">
                 انصراف
-            </button>
-            <button type="submit"
-                    class="ok-btn">
-                @((IsEditing ? "ذخیره تغییرات" : "ثبت هزینه"))
-            </button>
-        </div>
-    </EditForm>
-</div>
+            </MudButton>
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Disabled="@Loading"
+                       OnClick="SaveClicked">
+                @(IsEditing ? "ذخیره تغییرات" : "ثبت هزینه")
+            </MudButton>
+        </MudStack>
+
+        @if (errors.Length > 0)
+        {
+            <MudText Typo="Typo.subtitle2" Class="mt-3">خطاها:</MudText>
+            @foreach (var err in errors)
+            {
+                <MudText Color="Color.Error">@err</MudText>
+            }
+        }
+    </MudForm>
+
+</MudPaper>
 
 @code {
-    /* —— پارامترها —— */
-    [Parameter] public CreateExpenseDto        Model     { get; set; } = new();
-    [Parameter] public bool                    IsEditing { get; set; }
-    [Parameter] public EventCallback           OnCancel  { get; set; }
+    /* ---------- پارامترها ---------- */
+    [Parameter] public CreateExpenseDto Model { get; set; } = new();
+    [Parameter] public bool IsEditing { get; set; }
+    [Parameter] public bool Loading { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
     [Parameter] public EventCallback<CreateExpenseDto> OnSaved { get; set; }
+    [Parameter] public EventCallback<CreateExpenseDto> OnSubmit { get; set; }   // سازگاری
 
-    /* —————————— هندلرها —————————— */
+    /* ---------- State ---------- */
+    private MudForm? form;
+    private bool isValid;
+    private string[] errors = { };
+    private DateTime? _date;                                 // تاریخ فرم
+
+    /* ---------- مقداردهی ---------- */
+    protected override void OnParametersSet()
+    {
+        // تاریخ DTO (رشته) → DateTime? برای DatePicker
+        if (DateTime.TryParse(Model.Date, out var parsed))
+            _date = parsed;
+        else
+            _date = DateTime.Today;              // پیش‌فرض امروز
+    }
+
+    /* ---------- تغییر تصویر ---------- */
     private void HandleImageChanged(string? url) => Model.ReceiptUrl = url;
 
-    private async Task HandleSubmit()          => await OnSaved.InvokeAsync(Model);
-    private async Task CancelClicked()         => await OnCancel.InvokeAsync();
+    /* ---------- ثبت ---------- */
+    private async Task SaveClicked()
+    {
+        await form!.Validate();
+        if (!form.IsValid) return;
 
-    /* —————————— آدرسِ تصویر برای UploadImage —————————— */
+        // DateTime? → رشته با فرمت yyyy-MM-dd
+        Model.Date = (_date ?? DateTime.Today).ToString("yyyy-MM-dd");
+
+        // یک بار فراخوانی رویداد
+        if (OnSubmit.HasDelegate)
+            await OnSubmit.InvokeAsync(Model);
+        else
+            await OnSaved.InvokeAsync(Model);
+    }
+
+    /* ---------- انصراف ---------- */
+    private async Task CancelClicked()
+    {
+        if (OnCancel.HasDelegate)
+            await OnCancel.InvokeAsync();
+    }
+
+    /* ---------- Url کامل برای نمایش تصویر ---------- */
     private string? DisplayReceiptUrl => BuildAbsoluteUrl(Model.ReceiptUrl);
 
     private string? BuildAbsoluteUrl(string? url)
@@ -76,15 +130,13 @@
         if (string.IsNullOrWhiteSpace(url))
             return null;
 
-        // اگر مطلق یا data: است، همان را برگردان
         if (url.StartsWith("http", StringComparison.OrdinalIgnoreCase) ||
             url.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
             return url;
 
-        // نسبی است → بچسبان به ApiBase (از appsettings.json)
-        var apiBase = Config["ApiBase"];   // در appsettings:  "ApiBase": "https://localhost:7106"
+        var apiBase = Config["ApiBase"];
         if (string.IsNullOrWhiteSpace(apiBase))
-            apiBase = Nav.BaseUri;         // fallback: مبدأ فعلی
+            apiBase = Nav.BaseUri;
 
         return $"{apiBase.TrimEnd('/')}{url}";
     }

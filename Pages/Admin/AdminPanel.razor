@@ -1,0 +1,33 @@
+﻿@page "/admin"
+@inject NavigationManager Nav
+
+<link href="css/Admin/AdminPanel.css" rel="stylesheet" />
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="admin-panel-wrapper">
+    <MudStack AlignItems="AlignItems.Center" Spacing="4">
+
+        <MudText Typo="Typo.h4" Class="admin-title">
+            داشبورد ادمین
+        </MudText>
+
+        <div class="admin-btn-row">
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Secondary"
+                       Class="admin-btn users"
+                       OnClick="@(() => Nav.NavigateTo("/admin/manageusers"))"
+                       >
+                مدیریت کاربران
+            </MudButton>
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Class="admin-btn tasks"
+                       OnClick="@(() => Nav.NavigateTo("/admin/taskmanagement"))">
+                مدیریت تسک‌ها
+            </MudButton>
+
+        </div>
+
+    </MudStack>
+</MudContainer>

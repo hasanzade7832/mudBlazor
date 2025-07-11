@@ -47,9 +47,11 @@ public static class ApiEndpoints
     public static string DecrementEggCount(string userId) => $"Egg/Decrement/{userId}";
 
     // 📅 Attendance
-    public const string CreateAttendance = "TimeEntries";
-    public const string GetAttendances = "TimeEntries";
-    public static string DeleteAttendance(int id) => $"TimeEntries/{id}";
+    public const string CreateAttendance = "api/TimeEntries";
+    public const string GetAttendances = "api/TimeEntries";
+    public static string DeleteAttendance(int id) => $"api/TimeEntries/{id}";
+
+
 
     /* 🔹 Petty-Cash & Expense -------------------------------------------- */
     public const string GetCurrentExpenses = "api/Expense";

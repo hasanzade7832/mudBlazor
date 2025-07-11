@@ -1,0 +1,20 @@
+﻿.custom-dynamic-table {
+    border: 1px solid #c7d2fe;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 10px #e0e7ff;
+}
+
+.mud-table {
+    background-color: #f9fafb;
+}
+
+.mud-table-header {
+    background-color: #3b82f6;
+    color: white;
+    text-align: center;
+}
+
+.mud-table-cell {
+    text-align: center;
+}

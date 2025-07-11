@@ -1,0 +1,31 @@
+﻿.task-management-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.task-management-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+    .task-management-header .title {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #4338ca;
+    }
+
+.add-btn {
+    background-color: #4338ca;
+    color: white;
+    padding: 0.6rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+    .add-btn:hover {
+        background-color: #3730a3;
+    }
