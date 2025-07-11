@@ -57,5 +57,12 @@ namespace BlazorApp1.Services
 
         public async Task<bool> ConfirmUserTaskAsync(int userTaskId) =>
             (await _http.PostAsync(AdminEndpoints.ConfirmTask(userTaskId), null)).IsSuccessStatusCode;
+
+        public async Task<List<UserTaskDto>> GetMyTasksAsync() =>
+            await _http.GetFromJsonAsync<List<UserTaskDto>>(AdminEndpoints.GetMyTasks) ?? new();
+
+        public async Task<bool> CompleteTaskAsync(int userTaskId, CompleteTaskDto dto) =>
+    (await _http.PostAsJsonAsync(AdminEndpoints.CompleteTask(userTaskId), dto)).IsSuccessStatusCode;
+
     }
 }

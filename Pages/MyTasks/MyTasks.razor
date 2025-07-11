@@ -1,0 +1,107 @@
+﻿@page "/MyTasks"
+
+@using BlazorApp1.Models.TaskManagement
+@using BlazorApp1.Models.Auth
+@using BlazorApp1.Components.Modal
+@using BlazorApp1.Pages.Admin
+@inject ISnackbar Snackbar
+@using BlazorApp1.Services
+@using BlazorApp1.Services.Interfaces
+@inject IAdminService AdminService
+@inject SignalRService SignalRService
+@inject IJSRuntime JS
+
+@if (!string.IsNullOrEmpty(AlertMessage))
+{
+    <div class="alert alert-@AlertType mt-3 mx-auto" style="max-width:400px">
+        @AlertMessage
+        <button class="close" @onclick="() => AlertMessage = null">×</button>
+    </div>
+}
+
+<h1 class="tasks-title">تسک‌های من</h1>
+
+@if (IsLoading)
+{
+    <div class="text-center my-5">در حال دریافت تسک‌ها...</div>
+}
+else if (UserTasks.Count == 0)
+{
+    <div class="no-tasks text-gray-500">هیچ تسکی برای شما ثبت نشده است.</div>
+}
+else
+{
+    <div class="task-list">
+        @foreach (var ut in UserTasks)
+        {
+            @if (ut != null && ut.TaskItem != null)
+            {
+                <MyTaskCard UserTask="ut" OnSaved="ReloadTasks" />
+            }
+        }
+    </div>
+}
+
+@code {
+    private List<UserTaskDto> UserTasks = new();
+    private bool IsLoading = true;
+
+    private string? AlertMessage = null;
+    private string AlertType = "info";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTasks();
+
+        // این روش تضمینی برای رفرش UI است:
+        SignalRService.OnTaskAssigned(_ => OnSignalEvent("info", "یک تسک جدید به شما اختصاص یافت"));
+        SignalRService.OnTaskUpdated(_ => OnSignalEvent("info", "یک تسک ویرایش شد"));
+        SignalRService.OnTaskDeleted(_ => OnSignalEvent("info", "یک تسک حذف شد"));
+        SignalRService.OnTaskConfirmed(_ => OnSignalEvent(null, null));
+    }
+
+    // این متد همیشه روی UI اجرا میشه
+    private void OnSignalEvent(string? type, string? msg)
+    {
+        // از InvokeAsync برای کانتکست صحیح UI استفاده کن!
+        InvokeAsync(async () =>
+        {
+            await LoadTasks();
+            if (!string.IsNullOrEmpty(msg))
+                Show(type ?? "info", msg!);
+            StateHasChanged();
+        });
+    }
+
+    private async Task LoadTasks()
+    {
+        IsLoading = true;
+        StateHasChanged();
+        try
+        {
+            var list = await AdminService.GetMyTasksAsync();
+            UserTasks = list?.Where(ut => ut != null && ut.TaskItem != null).ToList() ?? new();
+        }
+        catch
+        {
+            Show("error", "دریافت لیست تسک‌ها با خطا مواجه شد.");
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void Show(string type, string msg)
+    {
+        AlertType = type;
+        AlertMessage = msg;
+    }
+
+    private async Task ReloadTasks()
+    {
+        await LoadTasks();
+        Show("success", "پیشرفت ثبت شد!");
+    }
+}

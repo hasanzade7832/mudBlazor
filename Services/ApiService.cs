@@ -2,6 +2,7 @@
 using BlazorApp1.Models;              // UserDto, ActivityDto, …  
 using BlazorApp1.Models.Attendance;
 using BlazorApp1.Models.Auth;         // LoginDto, RegisterDto  
+using BlazorApp1.Models.TaskManagement;
 using BlazorApp1.Services.Interfaces;
 using Microsoft.AspNetCore.Components.Forms;
 using System.Net.Http;                // MultipartFormDataContent  
@@ -215,6 +216,17 @@ namespace BlazorApp1.Services
 
             var json = await response.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
             return json.GetProperty("receiptUrl").GetString();
+        }
+
+
+        public async Task<List<UserTaskDto>> GetMyTasksAsync() =>
+    await _http.GetFromJsonAsync<List<UserTaskDto>>(AdminEndpoints.GetMyTasks) ?? new();
+
+        public async Task<bool> CompleteTaskAsync(int userTaskId, int percentComplete)
+        {
+            var dto = new { PercentComplete = percentComplete };
+            var response = await _http.PostAsJsonAsync(AdminEndpoints.CompleteTask(userTaskId), dto);
+            return response.IsSuccessStatusCode;
         }
 
 

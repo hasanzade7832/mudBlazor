@@ -1,6 +1,8 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager Nav
 
+
+
 @code {
     // مسیر فعلی (مثلاً "login", "signup", "home", ...)
     private string CurrentPath =>
@@ -8,6 +10,7 @@
 
     // آیا صفحهٔ فعلی از صفحات احراز هویت است؟
     private bool IsAuthPage => CurrentPath is "login" or "signup";
+
 }
 
 <div class="main-layout">

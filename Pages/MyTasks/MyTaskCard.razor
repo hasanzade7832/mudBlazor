@@ -1,0 +1,131 @@
+﻿@using BlazorApp1.Models.TaskManagement
+@using BlazorApp1.Services.Interfaces
+@inject IAdminService AdminService
+
+@if (UserTask != null && UserTask.TaskItem != null)
+{
+    <div class="mytask-card @(IsDeadlinePassed ? "expired" : "")">
+        <div class="card-header">
+            <div>
+                <h2 class="card-title">@TaskTitle</h2>
+                <p class="card-desc">@TaskDescription</p>
+            </div>
+            <div class="badges">
+                <span class="badge deadline @RemainBadgeClass">@RemainBadgeText</span>
+                <span class="badge status @StatusBadgeClass">@StatusBadgeText</span>
+            </div>
+        </div>
+        <div class="progress-row">
+            <input type="range"
+                   min="0"
+                   max="100"
+                   step="5"
+                   value="@Percent"
+                   disabled="@(!CanEdit)"
+                   @oninput="OnPercentInput" />
+            <span class="percent">@Percent %</span>
+            <button class="save-btn"
+                    disabled="@(!CanSave)"
+                    @onclick="SaveProgress">
+                ثبت
+            </button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="mytask-card error">
+        <div class="text-red-600">خطا: تسک نامعتبر</div>
+    </div>
+}
+
+@code {
+    [Parameter] public UserTaskDto? UserTask { get; set; }
+    [Parameter] public EventCallback OnSaved { get; set; }
+
+    private int draftPercent;
+
+    protected override void OnInitialized()
+    {
+        draftPercent = UserTask?.PercentComplete ?? 0;
+    }
+
+    private int Percent
+    {
+        get => draftPercent;
+        set
+        {
+            if (draftPercent != value)
+            {
+                draftPercent = value;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private string TaskTitle => UserTask?.TaskItem?.Title ?? "(بدون عنوان)";
+    private string TaskDescription => UserTask?.TaskItem?.Description ?? "";
+    private DateTime TaskDeadline => UserTask?.TaskItem?.Deadline ?? DateTime.Now;
+    private DateTime TaskCreatedAt => UserTask?.TaskItem?.CreatedAt ?? DateTime.Now;
+
+    private bool CanSave => Percent != (UserTask?.PercentComplete ?? 0)
+                            && !(UserTask?.IsConfirmedByAdmin ?? true)
+                            && !IsDeadlinePassed;
+    private bool CanEdit => !(UserTask?.IsConfirmedByAdmin ?? true) && !IsDeadlinePassed;
+    private bool IsDeadlinePassed => TaskDeadline < DateTime.Now;
+
+    private string RemainBadgeText
+    {
+        get
+        {
+            var rem = (TaskDeadline - DateTime.Now).TotalDays;
+            if (rem <= 0) return "مهلت تمام";
+            return $"{Math.Ceiling(rem)} روز مانده";
+        }
+    }
+    private string RemainBadgeClass
+    {
+        get
+        {
+            var rem = (TaskDeadline - DateTime.Now).TotalDays;
+            var total = (TaskDeadline - TaskCreatedAt).TotalDays;
+            var pct = total > 0 ? ((total - rem) / total) * 100 : 100;
+            if (pct >= 80) return "badge-red";
+            if (pct >= 30) return "badge-yellow";
+            return "badge-green";
+        }
+    }
+    private string StatusBadgeText
+    {
+        get
+        {
+            if (UserTask?.IsConfirmedByAdmin == true) return "تأیید شد";
+            if (UserTask?.IsCompletedByUser == true) return "در انتظار تأیید";
+            return "در حال انجام";
+        }
+    }
+    private string StatusBadgeClass
+    {
+        get
+        {
+            if (UserTask?.IsConfirmedByAdmin == true) return "badge-green";
+            if (UserTask?.IsCompletedByUser == true) return "badge-yellow animate-pulse";
+            return "badge-gray";
+        }
+    }
+
+    private void OnPercentInput(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int val))
+            Percent = val;
+    }
+
+    private async Task SaveProgress()
+    {
+        if (UserTask == null) return;
+        var dto = new CompleteTaskDto { PercentComplete = Percent };
+        var ok = await AdminService.CompleteTaskAsync(UserTask.Id, dto);
+        if (ok && OnSaved.HasDelegate)
+            await OnSaved.InvokeAsync();
+    }
+}

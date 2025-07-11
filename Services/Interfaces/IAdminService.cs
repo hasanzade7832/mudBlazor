@@ -25,5 +25,9 @@ namespace BlazorApp1.Services.Interfaces
         Task<bool> EditTaskAsync(int id, EditTaskDto dto);
         Task<bool> DeleteTaskAsync(int id);
         Task<bool> ConfirmUserTaskAsync(int userTaskId);
+
+        Task<List<UserTaskDto>> GetMyTasksAsync();
+        Task<bool> CompleteTaskAsync(int userTaskId, CompleteTaskDto dto);
+
     }
 }

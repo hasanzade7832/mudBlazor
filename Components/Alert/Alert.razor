@@ -1,0 +1,31 @@
+﻿@* Simple global alert *@
+@if (Show)
+{
+    <div class="alert @AlertTypeCss" @onclick="Hide">
+        <span>@Message</span>
+        <button class="close-btn" @onclick="Hide">×</button>
+    </div>
+}
+
+@code {
+    [Parameter] public string Message { get; set; } = "";
+    [Parameter] public string Type { get; set; } = "info"; // info, success, error, warning
+
+    [Parameter] public bool Show { get; set; }
+    [Parameter] public EventCallback<bool> ShowChanged { get; set; }
+
+    private string AlertTypeCss => Type switch
+    {
+        "success" => "alert-success",
+        "error" => "alert-error",
+        "warning" => "alert-warning",
+        _ => "alert-info"
+    };
+
+    private async Task Hide()
+    {
+        Show = false;
+        await ShowChanged.InvokeAsync(false);
+    }
+}
+

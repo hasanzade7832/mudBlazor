@@ -43,19 +43,20 @@
                      OnChanged="HandleImageChanged" />
 
         <!-- دکمه‌ها -->
-        <MudStack Direction="Row" Spacing="2" Class="mt-4">
-            <MudButton Variant="Variant.Outlined"
-                       Color="Color.Secondary"
-                       Disabled="@Loading"
-                       OnClick="CancelClicked">
-                انصراف
-            </MudButton>
 
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
                        Disabled="@Loading"
                        OnClick="SaveClicked">
                 @(IsEditing ? "ذخیره تغییرات" : "ثبت هزینه")
+            </MudButton>
+
+        <MudStack Direction="Row" Spacing="2" Class="mt-4">
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Secondary"
+                       Disabled="@Loading"
+                       OnClick="CancelClicked">
+                انصراف
             </MudButton>
         </MudStack>
 
