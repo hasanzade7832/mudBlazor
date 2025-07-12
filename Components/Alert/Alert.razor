@@ -1,31 +1,52 @@
-﻿@* Simple global alert *@
+﻿@using MudBlazor
+
 @if (Show)
 {
-    <div class="alert @AlertTypeCss" @onclick="Hide">
-        <span>@Message</span>
-        <button class="close-btn" @onclick="Hide">×</button>
+    <div class="alert-center-wrap">
+        <MudAlert Severity="@(Severity)" Variant="Variant.Filled" Dense="true" Elevation="6" Class="@AlertCss">
+            <div class="d-flex align-items-center justify-content-center gap-2">
+                @if (!string.IsNullOrWhiteSpace(Title))
+                {
+                    <span class="app-alert-title me-1">@Title</span>
+                }
+                <span class="app-alert-message">@Message</span>
+                <MudIconButton Icon="@Icons.Material.Filled.Close"
+                               Edge="Edge.Start"
+                               Size="Size.Small"
+                               Color="Color.Inherit"
+                               Class="app-alert-close"
+                               OnClick="@OnCloseClick" />
+            </div>
+        </MudAlert>
     </div>
 }
 
 @code {
-    [Parameter] public string Message { get; set; } = "";
-    [Parameter] public string Type { get; set; } = "info"; // info, success, error, warning
+    [Parameter] public bool Show { get; set; } = true;
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? Message { get; set; }
+    [Parameter] public Severity Severity { get; set; } = Severity.Info;
+    [Parameter] public EventCallback OnClose { get; set; }
 
-    [Parameter] public bool Show { get; set; }
-    [Parameter] public EventCallback<bool> ShowChanged { get; set; }
+    private string AlertCss => $"app-alert app-alert-{Severity.ToString().ToLower()}";
 
-    private string AlertTypeCss => Type switch
+    protected override async Task OnParametersSetAsync()
     {
-        "success" => "alert-success",
-        "error" => "alert-error",
-        "warning" => "alert-warning",
-        _ => "alert-info"
-    };
+        // اتومات بعد 5 ثانیه بسته بشه (اگر Show = true)
+        if (Show)
+        {
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(5000);
+                if (Show && OnClose.HasDelegate)
+                    await InvokeAsync(() => OnClose.InvokeAsync());
+            });
+        }
+    }
 
-    private async Task Hide()
+    private async Task OnCloseClick()
     {
-        Show = false;
-        await ShowChanged.InvokeAsync(false);
+        if (OnClose.HasDelegate)
+            await OnClose.InvokeAsync();
     }
 }
-

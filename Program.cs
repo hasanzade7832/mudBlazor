@@ -15,7 +15,9 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 // آدرس پایه API
-var BASE_URL = "https://localhost:7106/api";
+//var BASE_URL = "https://localhost:7223/api";
+var BASE_URL = "http://localhost:5001/api";
+
 
 // ثبت local storage برای نگهداری توکن
 builder.Services.AddBlazoredLocalStorage();

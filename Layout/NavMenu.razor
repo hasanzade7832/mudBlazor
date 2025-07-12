@@ -2,6 +2,10 @@
 @using System.Text.Json
 @inject IJSRuntime JS
 @inject NavigationManager NavManager
+@using BlazorApp1.Services
+@using BlazorApp1.Services.Interfaces
+@inject IAdminService AdminService
+@inject SignalRService SignalRService
 
 <MudAppBar Elevation="1" Color="Color.Primary" Dense="true" Class="px-4 py-1 relative">
 
@@ -173,6 +177,7 @@
     {
         await JS.InvokeVoidAsync("localStorage.removeItem", "user");
         await JS.InvokeVoidAsync("localStorage.removeItem", "token");
+        await SignalRService.StopConnectionAsync();
         NavManager.NavigateTo("/login");
     }
 

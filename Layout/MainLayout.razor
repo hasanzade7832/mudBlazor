@@ -1,9 +1,25 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager Nav
-
+@using BlazorApp1.Services
+@using BlazorApp1.Services.Interfaces
+@inject IAdminService AdminService
+@inject SignalRService SignalRService
+@inject SignalRService SignalRService
+@inject IAuthService AuthService
 
 
 @code {
+
+    @code {
+        protected override async Task OnInitializedAsync()
+        {
+            var token = await AuthService.GetTokenAsync();
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                await SignalRService.StartConnectionAsync(token);
+            }
+        }
+    }
     // مسیر فعلی (مثلاً "login", "signup", "home", ...)
     private string CurrentPath =>
         Nav.ToBaseRelativePath(Nav.Uri).Trim('/').ToLowerInvariant();

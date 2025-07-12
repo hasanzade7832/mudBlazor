@@ -12,3 +12,13 @@
 @using Blazored.Toast.Services
 @using MudBlazor
 
+@using BlazorApp1.Models.TaskManagement
+@using BlazorApp1.Models.Auth
+@using BlazorApp1.Components.Modal
+@using BlazorApp1.Pages.Admin
+@inject ISnackbar Snackbar
+@using BlazorApp1.Services
+@using BlazorApp1.Services.Interfaces
+@inject IAdminService AdminService
+@inject SignalRService SignalRService
+@inject IJSRuntime JS

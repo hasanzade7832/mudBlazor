@@ -1,43 +1,72 @@
 ﻿@using BlazorApp1.Models.TaskManagement
-@using BlazorApp1.Services.Interfaces
 @inject IAdminService AdminService
 
-@if (UserTask != null && UserTask.TaskItem != null)
-{
-    <div class="mytask-card @(IsDeadlinePassed ? "expired" : "")">
-        <div class="card-header">
-            <div>
-                <h2 class="card-title">@TaskTitle</h2>
-                <p class="card-desc">@TaskDescription</p>
-            </div>
-            <div class="badges">
-                <span class="badge deadline @RemainBadgeClass">@RemainBadgeText</span>
-                <span class="badge status @StatusBadgeClass">@StatusBadgeText</span>
+<link href="css/MyTasks/MyTaskCard.css" rel="stylesheet" />
+
+<MudCard Class="@CardClass" Elevation="2">
+    <!-- بج‌ها بالا کارت -->
+    <div class="mytask-badges-top">
+        <div class="badge-floating badge-floating-left">
+            <MudChip T="string"
+                     Color="@RemainBadgeColor"
+                     Variant="Variant.Filled"
+                     Size="Size.Large"
+                     Class="badge-chip-top">
+                @RemainBadgeText
+            </MudChip>
+        </div>
+        <div class="badge-floating badge-floating-right">
+            <MudChip T="string"
+                     Color="@StatusBadgeColor"
+                     Variant="Variant.Filled"
+                     Size="Size.Large"
+                     Class="@StatusChipTopClass">
+                @StatusBadgeText
+                @if (UserTask?.IsCompletedByUser == true && !(UserTask?.IsConfirmedByAdmin ?? false))
+                {
+                    <span class="dot-pulse"></span>
+                }
+            </MudChip>
+        </div>
+    </div>
+
+    <MudCardContent>
+        <div class="mytask-header">
+            <div class="mytask-header-info">
+                <MudText Typo="Typo.h6" Class="mytask-title">
+                    <div class="mytask-title-scroll">@TaskTitle</div>
+                </MudText>
+                @if (!string.IsNullOrWhiteSpace(TaskDescription))
+                {
+                    <MudText Typo="Typo.body2" Class="mytask-desc">
+                        <div class="mytask-desc-scroll">@TaskDescription</div>
+                    </MudText>
+                }
             </div>
         </div>
-        <div class="progress-row">
-            <input type="range"
-                   min="0"
-                   max="100"
-                   step="5"
-                   value="@Percent"
-                   disabled="@(!CanEdit)"
-                   @oninput="OnPercentInput" />
-            <span class="percent">@Percent %</span>
-            <button class="save-btn"
-                    disabled="@(!CanSave)"
-                    @onclick="SaveProgress">
+        <div class="mytask-actions">
+            <MudSlider T="int"
+                       Dir="Direction.LeftToRight"
+                       Min="0"
+                       Max="100"
+                       Step="5"
+                       Value="@Percent"
+                       Disabled="@(!CanEdit)"
+                       ValueChanged="@(v => OnPercentChanged(v))"
+                       Immediate="true"
+                       Color="Color.Primary"
+                       Class="mytask-slider" />
+            <div class="mytask-percent">@Percent %</div>
+            <MudButton Variant="Variant.Filled"
+                       Disabled="@(!CanSave)"
+                       OnClick="@SaveProgress"
+                       Color="Color.Primary"
+                       Class="mytask-save-btn">
                 ثبت
-            </button>
+            </MudButton>
         </div>
-    </div>
-}
-else
-{
-    <div class="mytask-card error">
-        <div class="text-red-600">خطا: تسک نامعتبر</div>
-    </div>
-}
+    </MudCardContent>
+</MudCard>
 
 @code {
     [Parameter] public UserTaskDto? UserTask { get; set; }
@@ -83,16 +112,16 @@ else
             return $"{Math.Ceiling(rem)} روز مانده";
         }
     }
-    private string RemainBadgeClass
+    private Color RemainBadgeColor
     {
         get
         {
             var rem = (TaskDeadline - DateTime.Now).TotalDays;
             var total = (TaskDeadline - TaskCreatedAt).TotalDays;
             var pct = total > 0 ? ((total - rem) / total) * 100 : 100;
-            if (pct >= 80) return "badge-red";
-            if (pct >= 30) return "badge-yellow";
-            return "badge-green";
+            if (pct >= 80) return Color.Error;
+            if (pct >= 30) return Color.Warning;
+            return Color.Success;
         }
     }
     private string StatusBadgeText
@@ -104,20 +133,37 @@ else
             return "در حال انجام";
         }
     }
-    private string StatusBadgeClass
+    private Color StatusBadgeColor
     {
         get
         {
-            if (UserTask?.IsConfirmedByAdmin == true) return "badge-green";
-            if (UserTask?.IsCompletedByUser == true) return "badge-yellow animate-pulse";
-            return "badge-gray";
+            if (UserTask?.IsConfirmedByAdmin == true) return Color.Success;
+            if (UserTask?.IsCompletedByUser == true) return Color.Warning;
+            return Color.Info;
         }
     }
 
-    private void OnPercentInput(ChangeEventArgs e)
+    // فقط یک متغیر رشته نهایی به جای ترکیب مستقیم در Class
+    private string StatusChipTopClass =>
+        $"badge-chip-top{(UserTask?.IsCompletedByUser == true && !(UserTask?.IsConfirmedByAdmin ?? false) ? " pulse-badge" : "")}";
+
+    // حالت کارت: اگه تایید شده کل کارت سبز شود
+    private string CardClass
     {
-        if (int.TryParse(e.Value?.ToString(), out int val))
-            Percent = val;
+        get
+        {
+            if (UserTask?.IsConfirmedByAdmin == true)
+                return "mytask-card mx-auto completed";
+            if (IsDeadlinePassed)
+                return "mytask-card mx-auto expired";
+            return "mytask-card mx-auto";
+        }
+    }
+
+    private Task OnPercentChanged(int v)
+    {
+        Percent = v;
+        return Task.CompletedTask;
     }
 
     private async Task SaveProgress()

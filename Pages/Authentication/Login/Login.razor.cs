@@ -14,6 +14,8 @@ namespace BlazorApp1.Pages.Authentication
         [Inject] protected NavigationManager Navigation { get; set; }
         [Inject] protected ISnackbar Snackbar { get; set; }
         [Inject] protected AuthenticationStateProvider AuthProvider { get; set; }
+        [Inject] protected SignalRService SignalRService { get; set; }
+
 
         protected readonly LoginDto _model = new();
         protected bool _showPassword;
@@ -50,6 +52,9 @@ namespace BlazorApp1.Pages.Authentication
                 };
 
                 await AuthService.LoginAsync(result.Token, user);
+
+                await SignalRService.StartConnectionAsync(result.Token);
+
 
                 if (AuthProvider is CustomAuthStateProvider p)
                     p.NotifyUserChanged();

@@ -1,0 +1,248 @@
+﻿.mytask-card {
+    background: #fff;
+    border-radius: 1.7em;
+    box-shadow: 0 7px 22px 0 rgba(100,116,139,0.10), 0 1.5px 6px 0 rgba(0,0,0,.07);
+    padding: 44px 28px 30px 28px; /* فاصله بالایی بیشتر برای بج‌ها */
+    width: 95%;
+    max-width: 620px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: stretch;
+    border: 2.7px solid #e0e7ef;
+    transition: box-shadow .22s, border .16s, background .22s;
+    position: relative;
+    overflow: visible;
+    min-height: 220px;
+}
+
+    /* حالت کارت وقتی تسک تأیید شده */
+    .mytask-card.completed {
+        background: linear-gradient(104deg, #d1fae5 90%, #6ee7b7 100%);
+        border-color: #10b981 !important;
+        box-shadow: 0 8px 40px 0 rgba(16,185,129,0.10);
+        opacity: 0.96;
+        transition: background .32s;
+    }
+
+    .mytask-card.expired {
+        opacity: .62;
+        background: #f8fafc;
+        border-color: #e2e8f0;
+    }
+
+/* ------ بج‌های نیمه‌بیرون کارت ------ */
+.mytask-badges-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+}
+
+.badge-floating {
+    position: relative;
+}
+
+.badge-floating-left {
+    margin-left: 20px;
+    transform: translateY(-50%);
+}
+
+.badge-floating-right {
+    margin-right: 20px;
+    transform: translateY(-50%);
+}
+
+.badge-chip-top {
+    font-size: 1.16em;
+    padding: 10px 28px 10px 28px;
+    border-radius: 2.8em;
+    box-shadow: 0 4px 18px 0 rgba(0,0,0,0.08);
+    min-width: 110px;
+    pointer-events: auto;
+    background-clip: padding-box;
+}
+
+.pulse-badge {
+    animation: pulse 1.1s infinite;
+}
+
+/* ------ محتوای داخلی کارت ------ */
+.mytask-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 22px;
+    align-items: flex-start;
+    margin-bottom: 2px;
+}
+
+.mytask-header-info {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.mytask-title {
+    color: #312e81;
+    font-weight: bold;
+    font-size: 1.20em;
+    margin-bottom: 5px;
+    max-width: 300px;
+    overflow-x: auto;
+}
+
+.mytask-title-scroll {
+    white-space: nowrap;
+    overflow-x: auto;
+    scrollbar-color: #e0e7ef #fff;
+    scrollbar-width: thin;
+}
+
+    .mytask-title-scroll::-webkit-scrollbar {
+        height: 5px;
+        background: #e0e7ef;
+        border-radius: 8px;
+    }
+
+    .mytask-title-scroll::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 8px;
+    }
+
+.mytask-desc {
+    color: #475569;
+    font-size: 1em;
+    margin-bottom: 2px;
+    max-width: 320px;
+    line-height: 1.7;
+}
+
+.mytask-desc-scroll {
+    overflow-x: auto;
+    scrollbar-color: #e0e7ef #fff;
+    scrollbar-width: thin;
+}
+
+    .mytask-desc-scroll::-webkit-scrollbar {
+        height: 5px;
+        background: #e0e7ef;
+        border-radius: 8px;
+    }
+
+    .mytask-desc-scroll::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 8px;
+    }
+
+.mytask-actions {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-top: 18px;
+}
+
+.mytask-slider {
+    flex: 1 1 0;
+    max-width: 340px;
+    accent-color: #6366f1;
+    border-radius: 12px;
+    background: #e0e7ff;
+    margin-inline-end: 12px;
+}
+
+.mytask-percent {
+    min-width: 44px;
+    font-weight: bold;
+    color: #312e81;
+    text-align: center;
+    font-size: 1.09em;
+}
+
+.mytask-save-btn {
+    padding: 9px 26px;
+    font-size: 1em;
+    border-radius: 100px;
+    background: linear-gradient(90deg, #6366f1 0%, #818cf8 80%);
+    color: #fff;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 7px rgba(100,116,139,.07);
+    transition: background .17s, box-shadow .16s;
+    outline: none;
+}
+
+    .mytask-save-btn:disabled {
+        opacity: 0.50;
+        background: #cbd5e1;
+        color: #64748b;
+        cursor: not-allowed;
+    }
+
+.dot-pulse {
+    display: inline-block;
+    margin-inline-start: 7px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #ffbb33;
+    box-shadow: 0 0 6px #ffe066;
+    animation: dot-pulse .85s infinite linear;
+    vertical-align: middle;
+}
+
+@keyframes dot-pulse {
+    0% {
+        opacity: .2;
+    }
+
+    40% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: .2;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(245,158,66,0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 8px rgba(245,158,66,0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(245,158,66,0);
+    }
+}
+
+/* موبایل ریسپانسیو */
+@media (max-width: 720px) {
+    .mytask-card {
+        max-width: 99vw;
+        padding: 16px 5px 13px 5px;
+    }
+
+    .badge-floating-left, .badge-floating-right {
+        margin: 0 6px;
+    }
+
+    .badge-chip-top {
+        font-size: 1em;
+        padding: 8px 18px;
+        min-width: 75px;
+    }
+
+    .mytask-header {
+        gap: 10px;
+    }
+}
