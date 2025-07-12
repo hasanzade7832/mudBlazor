@@ -1,9 +1,7 @@
 ﻿@page "/MyTasks"
 @using BlazorApp1.Models.TaskManagement
 @using BlazorApp1.Components.Alert
-
-@inject IAdminService AdminService
-@inject SignalRService SignalRService
+@inherits BlazorApp1.Pages.MyTasks.MyTasksBase
 
 <MudPaper Class="tasks-container-outer" Square="false" Elevation="0">
     <MudText Typo="Typo.h4" Class="tasks-title mt-2 mb-2">تسک‌های من</MudText>
@@ -39,84 +37,3 @@
         }
     </MudPaper>
 </MudPaper>
-
-@code {
-    private List<UserTaskDto> UserTasks = new();
-    private bool IsLoading = true;
-    private string? AlertMessage = null;
-    private string? AlertTaskTitle = null;
-    private Severity AlertType = Severity.Info;
-    private bool ShowAlert = false;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadTasks();
-
-        SignalRService.OnTaskAssigned(taskId => OnSignalEvent(Severity.Info, "یک تسک جدید به شما اختصاص یافت", taskId));
-        SignalRService.OnTaskUpdated(taskId => OnSignalEvent(Severity.Info, "یک تسک ویرایش شد", taskId));
-        SignalRService.OnTaskDeleted(taskId => OnSignalEvent(Severity.Info, "یک تسک حذف شد", taskId));
-        SignalRService.OnTaskConfirmed(userTaskId => OnSignalEvent(Severity.Success, "تسک شما توسط مدیر تایید شد!", userTaskId));
-    }
-
-    private void OnSignalEvent(Severity type, string msg, int? relatedId = null)
-    {
-        InvokeAsync(async () =>
-        {
-            await LoadTasks();
-            string? title = null;
-
-            if (relatedId.HasValue)
-            {
-                var ut = UserTasks.FirstOrDefault(x => x.Id == relatedId.Value);
-                if (ut?.TaskItem?.Title != null)
-                    title = $"«{ut.TaskItem.Title}»";
-                else
-                {
-                    var ut2 = UserTasks.FirstOrDefault(x => x.TaskItem?.Id == relatedId.Value);
-                    if (ut2?.TaskItem?.Title != null)
-                        title = $"«{ut2.TaskItem.Title}»";
-                }
-            }
-
-            Show(type, msg, title);
-            StateHasChanged();
-        });
-    }
-
-    private async Task LoadTasks()
-    {
-        IsLoading = true;
-        StateHasChanged();
-        try
-        {
-            var list = await AdminService.GetMyTasksAsync();
-            UserTasks = list?
-                .Where(ut => ut != null && ut.TaskItem != null)
-                .OrderByDescending(ut => ut.TaskItem?.CreatedAt ?? DateTime.MinValue)
-                .ToList() ?? new();
-        }
-        catch
-        {
-            Show(Severity.Error, "دریافت لیست تسک‌ها با خطا مواجه شد.", null);
-        }
-        finally
-        {
-            IsLoading = false;
-            StateHasChanged();
-        }
-    }
-
-    private void Show(Severity type, string msg, string? taskTitle = null)
-    {
-        AlertType = type;
-        AlertMessage = msg;
-        AlertTaskTitle = taskTitle;
-        ShowAlert = true;
-    }
-
-    private async Task ReloadTasks()
-    {
-        await LoadTasks();
-        Show(Severity.Success, "پیشرفت ثبت شد!", null);
-    }
-}
