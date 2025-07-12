@@ -1,42 +1,29 @@
 ﻿@page "/admin/taskmanagement"
-
 @using BlazorApp1.Models.TaskManagement
 @using BlazorApp1.Models.Auth
 @using BlazorApp1.Components.Modal
-@using BlazorApp1.Pages.Admin
-@inject ISnackbar Snackbar
-@using BlazorApp1.Services
-@using BlazorApp1.Services.Interfaces
-@inject IAdminService AdminService
-@inject SignalRService SignalRService
-@inject IJSRuntime JS
+@inherits BlazorApp1.Pages.Admin.TaskManagementBase
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto px-4 py-6">
     <MudStack Spacing="3">
 
         <!-- سرصفحه -->
-        <MudStack Direction="Row"
-                  JustifyContent="Space-between"
-                  AlignItems="AlignItems.Center">
-
-            <MudText Typo="Typo.h5"
-                     Class="text-indigo-700 font-extrabold">
+        <MudStack Direction="Row" JustifyContent="Space-between" AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.h5" Class="text-indigo-700 font-extrabold">
                 مدیریت تسک‌ها
             </MudText>
 
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       OnClick="OpenAddModal">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OpenAddModal">
                 افزودن تسک
             </MudButton>
         </MudStack>
 
-        <!-- فهرست تسک‌ها -->
+        <!-- جدول -->
         <TaskList Tasks="Tasks"
                   Users="Users"
                   OnEdit="EventCallback.Factory.Create<(TaskDto,string)>(this, OpenEditModal)"
-                  OnDelete="EventCallback.Factory.Create<int>(this, DeleteTaskAsync)"
-                  OnConfirm="EventCallback.Factory.Create<int>(this, ConfirmTaskAsync)" />
+                  OnDelete="EventCallback.Factory.Create<int>           (this, DeleteTaskAsync)"
+                  OnConfirm="EventCallback.Factory.Create<int>           (this, ConfirmTaskAsync)" />
 
         <!-- مودال -->
         <Modal Open="ShowModal" OnClose="CloseModal">
@@ -46,154 +33,8 @@
                      Loading="ModalLoading"
                      OnCancel="CloseModal"
                      OnSubmit="HandleSubmitAsync"
-                     OnSaved="HandleSubmitAsync" />   @* هر دو در دسترس باشند *@
+                     OnSaved="HandleSubmitAsync" />
         </Modal>
+
     </MudStack>
 </MudContainer>
-
-@code {
-    /* ---------- State ---------- */
-    private List<TaskDto> Tasks = new();
-    private List<SimpleUserDto> Users = new();
-
-    private bool ShowModal = false;
-    private string ModalMode = "add";          // "add" | "edit"
-    private bool ModalLoading = false;
-
-    private int? EditingTaskId;
-    private CreateTaskDto SelectedTask = new();
-
-    /* ---------- lifecycle ---------- */
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadDataAsync();
-
-        // رویدادهای SignalR
-        SignalRService.OnTaskCompletedByUser((_, _) => InvokeAsync(LoadTasksOnlyAsync));
-        SignalRService.OnTaskUpdated(_ =>
-        {
-            Snackbar.Add("تسک به‌روزرسانی شد", Severity.Info);
-            InvokeAsync(LoadTasksOnlyAsync);
-        });
-        SignalRService.OnTaskDeleted(_ =>
-        {
-            Snackbar.Add("تسک حذف شد", Severity.Info);
-            InvokeAsync(LoadTasksOnlyAsync);
-        });
-    }
-
-    /* ---------- data ---------- */
-    private async Task LoadDataAsync()
-    {
-        Tasks = await AdminService.GetAllTasksAsync();
-
-        var allUsers = await AdminService.GetAllUsersAsync();
-        Users = allUsers.Select(u => new SimpleUserDto
-            {
-                Id = u.Id,
-                UserName = u.UserName
-            }).ToList();
-    }
-
-    private async Task LoadTasksOnlyAsync()
-    {
-        Tasks = await AdminService.GetAllTasksAsync();
-        StateHasChanged();
-    }
-
-    /* ---------- modal helpers ---------- */
-    private void OpenAddModal()
-    {
-        ModalMode = "add";
-        EditingTaskId = null;
-        SelectedTask = new();
-        ShowModal = true;
-    }
-
-    private void OpenEditModal((TaskDto Task, string UserId) data)
-    {
-        var (task, userId) = data;
-
-        ModalMode = "edit";
-        EditingTaskId = task.Id;
-        SelectedTask = new CreateTaskDto
-            {
-                Title = task.Title,
-                Description = task.Description,
-                Deadline = task.Deadline,
-                UserIds = new() { userId }
-            };
-
-        ShowModal = true;
-    }
-
-    private void CloseModal()
-    {
-        ShowModal = false;
-        StateHasChanged();              // اطمینان از رندر مجدد
-    }
-
-    /* ---------- submit ---------- */
-    private async Task HandleSubmitAsync(CreateTaskDto dto)
-    {
-        ModalLoading = true;
-        StateHasChanged();
-
-        bool ok;
-
-        if (ModalMode == "add")
-        {
-            ok = await AdminService.CreateTaskAsync(dto);
-        }
-        else
-        {
-            ok = EditingTaskId.HasValue &&
-                 await AdminService.EditTaskAsync(EditingTaskId.Value, new EditTaskDto
-                     {
-                         Title = dto.Title,
-                         Description = dto.Description,
-                         Deadline = dto.Deadline,
-                         UserIds = dto.UserIds
-                     });
-        }
-
-        if (ok)
-        {
-            Snackbar.Add("تسک با موفقیت ذخیره شد", Severity.Success);
-            CloseModal();
-            await LoadTasksOnlyAsync();
-        }
-        else
-        {
-            Snackbar.Add("خطا در ذخیره‌سازی تسک", Severity.Error);
-        }
-
-        ModalLoading = false;
-        StateHasChanged();
-    }
-
-    /* ---------- delete / confirm ---------- */
-    private async Task DeleteTaskAsync(int taskId)
-    {
-        if (!await JS.InvokeAsync<bool>("confirm", "آیا از حذف این تسک مطمئن هستید؟"))
-            return;
-
-        if (await AdminService.DeleteTaskAsync(taskId))
-        {
-            Snackbar.Add("تسک حذف شد", Severity.Success);
-            await LoadTasksOnlyAsync();
-        }
-        else
-        {
-            Snackbar.Add("خطا در حذف تسک", Severity.Error);
-        }
-    }
-
-    private async Task ConfirmTaskAsync(int userTaskId)
-    {
-        if (await AdminService.ConfirmUserTaskAsync(userTaskId))
-            await LoadTasksOnlyAsync();
-        else
-            Snackbar.Add("خطا در تأیید تسک", Severity.Error);
-    }
-}
