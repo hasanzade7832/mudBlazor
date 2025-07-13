@@ -1,4 +1,5 @@
-﻿@inherits AddTask
+﻿@namespace BlazorApp1.Components.Admin
+@using MudBlazor
 
 <MudPaper Class="pa-4">
     <MudForm @ref="form"
@@ -41,14 +42,11 @@
         </MudSelect>
 
         <MudStack Direction="Row" Spacing="2" Class="mt-4">
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       Disabled="@Loading"
-                       OnClick="SaveClicked">
+            <MudButton Disabled="@Loading" OnClick="SaveClicked">
                 @(IsEditing ? "ذخیره تغییرات" : "ثبت تسک")
             </MudButton>
+
             <MudButton Variant="Variant.Outlined"
-                       Color="Color.Secondary"
                        Disabled="@Loading"
                        OnClick="CancelClicked">
                 انصراف

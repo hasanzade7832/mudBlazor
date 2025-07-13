@@ -1,0 +1,32 @@
+﻿@* ساعت دیجیتال با MudBlazor *@
+@namespace BlazorApp1.Components
+@using System.Timers
+@implements IDisposable
+
+<MudPaper Class="digital-clock-paper" Elevation="4">
+    <MudText Typo="Typo.h3" Align="Align.Center" Class="digital-clock-text">
+        @_now.ToString("HH:mm:ss")
+    </MudText>
+</MudPaper>
+
+@code {
+    private DateTime _now = DateTime.Now;
+    private Timer? _timer;
+
+    protected override void OnInitialized()
+    {
+        _timer = new(1000);
+        _timer.Elapsed += (_, _) =>
+        {
+            _now = DateTime.Now;
+            InvokeAsync(StateHasChanged);
+        };
+        _timer.Start();
+    }
+
+    public void Dispose()
+    {
+        _timer?.Stop();
+        _timer?.Dispose();
+    }
+}

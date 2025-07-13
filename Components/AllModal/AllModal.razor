@@ -1,0 +1,78 @@
+﻿@namespace BlazorApp1.Components
+@using MudBlazor
+
+<MudDialog Class="custom-dialog">
+
+    <!-- عنوان -->
+    <TitleContent>
+        <h4 class="dialog-title">@Title</h4>
+    </TitleContent>
+
+    <!-- بدنه -->
+    <DialogContent>
+        <div class="dialog-body">
+            @ChildContent
+        </div>
+    </DialogContent>
+
+    <!-- دکمه‌ها -->
+    <DialogActions>
+        <div class="dialog-buttons">
+            @if (ShowCancelButton)
+            {
+                <MudButton Class="modal-btn cancel-btn"
+                           OnClick="Cancel">
+                    @CancelText
+                </MudButton>
+            }
+
+            <MudButton Class="modal-btn ok-btn"
+                       Disabled="@_isLoading"
+                       OnClick="Submit">
+                @if (_isLoading)
+                {
+                    <MudProgressCircular Class="loading-spinner" />
+                }
+                else
+                {
+                    @OkText
+                }
+            </MudButton>
+        </div>
+    </DialogActions>
+
+</MudDialog>
+
+@code {
+    /* ----- پارامترها ----- */
+    [Parameter] public string Title { get; set; } = "پیام سیستم";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string OkText { get; set; } = "ثبت";
+    [Parameter] public string CancelText { get; set; } = "انصراف";
+    [Parameter] public bool ShowCancelButton { get; set; } = true;
+    [Parameter] public EventCallback OnOk { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private bool _isLoading;
+
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    private async Task Submit()
+    {
+        _isLoading = true;
+        StateHasChanged();
+
+        if (OnOk.HasDelegate)
+            await OnOk.InvokeAsync();
+
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private async Task Cancel()
+    {
+        if (OnCancel.HasDelegate)
+            await OnCancel.InvokeAsync();
+
+        MudDialog.Cancel();
+    }
+}

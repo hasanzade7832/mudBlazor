@@ -1,0 +1,55 @@
+﻿/* کادر اصلی */
+.custom-dialog {
+    max-width: 480px; /* معادل MaxWidth.Small */
+    border-radius: 14px;
+    padding-top: 10px;
+}
+
+/* عنوان */
+.dialog-title {
+    text-align: center;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: .3px;
+    font-size: 1.1rem;
+}
+
+/* بدنه محتوا */
+.dialog-body {
+    margin: 12px 6px 8px;
+}
+
+/* نوار اکشن‌ها */
+.dialog-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 8px;
+}
+
+/* دکمه‌های مشترک */
+.modal-btn {
+    min-width: 110px;
+    font-weight: 600;
+    padding: 6px 18px;
+    border-radius: 6px;
+    color: #fff; /* متن سفید برای هر دو */
+    border: none;
+    cursor: pointer;
+}
+
+/* دکمه تأیید (سبز) */
+.ok-btn {
+    background-color: #10b981;
+}
+
+/* دکمه لغو (قرمز) */
+.cancel-btn {
+    background-color: #ef4444;
+}
+
+/* اسپینر بارگذاری */
+.loading-spinner {
+    width: 18px !important;
+    height: 18px !important;
+}

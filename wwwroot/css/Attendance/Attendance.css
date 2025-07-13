@@ -1,0 +1,221 @@
+﻿.attendance-row-modern {
+    min-height: 100vh;
+    width: 100vw;
+    background: linear-gradient(120deg, #eef2ff 0%, #f7fafc 100%);
+    display: flex;
+    flex-direction: row-reverse; /* تایمر راست، جدول چپ */
+    justify-content: center;
+    align-items: flex-start;
+    gap: 56px;
+    padding-top: 54px;
+}
+
+.attendance-col-modern {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.clock-side-modern {
+    min-width: 340px;
+    max-width: 390px;
+    width: 100%;
+    align-items: center;
+}
+
+.table-side-modern {
+    min-width: 420px;
+    max-width: 940px;
+    width: 100%;
+    align-items: flex-start;
+}
+
+/* تایمر دیجیتال */
+.digital-clock-modern {
+    width: 100%;
+    min-width: 270px;
+    max-width: 400px;
+    margin: 0 auto 0.5rem auto;
+    font-size: 65px;
+    font-family: 'JetBrains Mono', 'Vazirmatn', 'Courier New', monospace;
+    color: #3730a3;
+    /* پس زمینه، شیشه و کادر حذف شد: */
+    background: transparent !important;
+    border-radius: 38px;
+    box-shadow: none !important;
+    padding: 28px 0 26px 0;
+    text-align: center;
+    letter-spacing: 5px;
+    text-shadow: 0 2px 9px #64748b22;
+    position: relative;
+    z-index: 2;
+    /* border و backdrop حذف: */
+    border: none !important;
+    backdrop-filter: none !important;
+    transition: none;
+}
+
+    .digital-clock-modern::before {
+        display: none !important;
+    }
+
+
+.elapsed-label-modern {
+    font-size: 1.18rem;
+    font-weight: 500;
+    color: #52525b;
+    text-align: center;
+    margin-bottom: 32px;
+    margin-top: 12px;
+    letter-spacing: 0.5px;
+    width: 100%;
+}
+
+    .elapsed-label-modern span {
+        font-weight: 700;
+        color: #0ea5e9;
+        font-family: inherit;
+    }
+
+.modern-btn-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 24px;
+    width: 100%;
+}
+
+.modern-btn {
+    min-width: 140px;
+    font-size: 1.15rem;
+    padding: 16px 0;
+    border-radius: 16px;
+    border: none;
+    font-weight: 800;
+    background: transparent;
+    box-shadow: 0 3px 18px #a5b4fc55;
+    cursor: pointer;
+    transition: transform 0.08s, background 0.18s, box-shadow 0.18s;
+}
+
+.modern-btn-checkin {
+    background: linear-gradient(90deg, #38bdf8 0%, #34d399 100%);
+    color: #fff;
+}
+
+.modern-btn-checkout {
+    background: linear-gradient(90deg, #f43f5e 0%, #fbbf24 100%);
+    color: #fff;
+}
+
+.modern-btn:hover:enabled, .modern-btn:focus:enabled {
+    transform: translateY(-3px) scale(1.03);
+    filter: brightness(1.09);
+    box-shadow: 0 5px 24px #818cf8bb;
+}
+
+.modern-btn:disabled {
+    background: #d1d5db !important;
+    color: #fff !important;
+    opacity: 0.60;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.total-duration-modern {
+    margin-top: 10px;
+    margin-bottom: 18px;
+    width: 100%;
+    text-align: center;
+    font-size: 1.18rem;
+    font-weight: bold;
+    color: #0c4a6e;
+    letter-spacing: 1.2px;
+    background: transparent;
+}
+
+    .total-duration-modern span {
+        color: #4f46e5;
+        font-size: 1.18rem;
+        margin-right: 8px;
+        font-weight: 900;
+        font-family: 'JetBrains Mono', 'Vazirmatn', monospace;
+    }
+
+.table-glass-modern {
+    width: 100%;
+    max-width: 940px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.38);
+    border-radius: 22px;
+    box-shadow: 0 10px 48px #c7d2fe50, 0 2px 12px #64748b18;
+    padding: 20px 18px 32px 18px;
+    backdrop-filter: blur(5px);
+    overflow-x: auto;
+}
+
+    .table-glass-modern table {
+        width: 100%;
+        border-radius: 18px;
+        overflow: hidden;
+        background: rgba(255,255,255,0.9);
+    }
+
+    .table-glass-modern th,
+    .table-glass-modern td {
+        text-align: center;
+        font-size: 1rem;
+        color: #3730a3;
+        padding: 12px 6px;
+    }
+
+    .table-glass-modern th {
+        background: #e0e7ff;
+        color: #4f46e5;
+        font-weight: 900;
+        font-size: 1.05rem;
+    }
+
+    .table-glass-modern tr {
+        border-bottom: 1.5px solid #f1f5f9;
+        transition: background 0.17s;
+    }
+
+        .table-glass-modern tr:hover {
+            background: #e0e7ff44;
+        }
+
+.alert-empty-modern {
+    background: #f1f5f9bb;
+    color: #64748b;
+    border-radius: 8px;
+    padding: 1.1rem 2.1rem;
+    font-size: 1.08rem;
+    box-shadow: 0 1px 8px #cbd5e177;
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+@media (max-width: 1000px) {
+    .attendance-row-modern {
+        flex-direction: column;
+        gap: 32px;
+        align-items: center;
+        padding-top: 24px;
+    }
+
+    .table-side-modern, .clock-side-modern {
+        min-width: 210px;
+        max-width: 99vw;
+        width: 100%;
+        align-items: center;
+    }
+
+    .digital-clock-modern,
+    .total-duration-modern,
+    .table-glass-modern {
+        max-width: 98vw;
+    }
+}
