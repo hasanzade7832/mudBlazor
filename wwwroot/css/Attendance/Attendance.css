@@ -22,7 +22,7 @@
     gap: 38px;
     padding: 54px 24px 32px 24px;
     min-height: 100vh;
-    width: 100vw;
+    width: 100%; /* ← اصلاح‌شده: قبلاً 100vw بود */
     box-sizing: border-box;
 }
 
@@ -96,6 +96,10 @@
     font-size: 1.25rem;
     font-weight: 700;
     color: #fff;
+    /* --- NEW: جلوگیری از شکستن خط --- */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
     .elapsed-label-glass span,
@@ -117,7 +121,7 @@
 }
 
 /*********************************
-  دکمه ورود (جدید، زنده و آبی-تمدارک)
+  دکمه ورود (آبی)
 *********************************/
 .mud-button-root.modern-btn-glass.modern-btn-glass-checkin {
     flex: 1;
@@ -180,7 +184,7 @@
     }
 
 /*********************************
-  دکمه خروج (جدید، زنده و قرمز-آتشین)
+  دکمه خروج (قرمز)
 *********************************/
 .mud-button-root.modern-btn-glass.modern-btn-glass-checkout {
     flex: 1;
@@ -242,7 +246,7 @@
     }
 
 /*********************************
-  Hover / Focus مشترک (همه دکمه‌ها)
+  Hover / Focus مشترک
 *********************************/
 .mud-button-root.modern-btn-glass:hover:enabled,
 .mud-button-root.modern-btn-glass:focus:enabled {
@@ -259,7 +263,51 @@
 }
 
 /*********************************
-  ریسپانسیو
+  ریسپانسیو (دسکتاپ به موبایل)
+*********************************/
+@media (max-width: 768px) {
+
+    /* تک‌ستونه کردن و ترتیب */
+    .attendance-row-modern {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .clock-side-modern {
+        order: 1;
+    }
+
+    .table-side-modern {
+        order: 2;
+    }
+
+    /* اجازه دهید کارت کوچک شود تا اسکرول افقی ایجاد نشود */
+    .glass-card {
+        min-width: auto;
+    }
+
+    /* --- NEW: کاهش فونت برای جلوگیری از شکست --- */
+    .elapsed-label-glass,
+    .total-duration-glass {
+        font-size: 1.05rem;
+    }
+
+    /* دکمه‌های کوچک‌تر (همان قواعد قبلی 600px) */
+    .mud-button-root.modern-btn-glass.modern-btn-glass-checkin,
+    .mud-button-root.modern-btn-glass.modern-btn-glass-checkout {
+        height: 46px;
+        font-size: 1.18rem !important;
+        padding: 0 0.6rem !important;
+    }
+
+    .mud-button-root.modern-btn-glass .mud-icon-root {
+        font-size: 1.25rem !important;
+        margin-right: 10px !important;
+    }
+}
+
+/*********************************
+  ریسپانسیو قبلی (600px) ـ حفظ شده
 *********************************/
 @media (max-width: 600px) {
     .mud-button-root.modern-btn-glass.modern-btn-glass-checkin,
