@@ -1,55 +1,184 @@
-﻿/* کادر اصلی */
+﻿/*===================================
+  پالت رنگ و متغیرهای اصلی
+====================================*/
+:root {
+    --dlg-bg: #1a1a2e;
+    --dlg-fg: #fff;
+    --dlg-accent: #0169CC;
+    --dlg-accent-d: #014a94;
+    --dlg-border: #0f0f1e;
+}
+
+/*===================================
+  سبک کلی مودال
+====================================*/
 .custom-dialog {
-    max-width: 480px; /* معادل MaxWidth.Small */
-    border-radius: 14px;
-    padding-top: 10px;
+    background: var(--dlg-bg) !important;
+    color: var(--dlg-fg) !important;
+    max-width: 640px !important; /* از 480 به 640 پیکسل */
+    width: 90vw !important; /* روی موبایل هم بزرگ باشد */
+    border-radius: 12px;
+    padding-top: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6), 0 0 16px rgba(1,105,204,0.2);
 }
 
-/* عنوان */
+    .custom-dialog .mud-dialog-container,
+    .custom-dialog .mud-paper {
+        padding: 0;
+        background: none;
+        box-shadow: none;
+    }
+
+/*===================================
+  عنوان مودال
+====================================*/
 .dialog-title {
+    margin: 0 0 12px;
     text-align: center;
+    font-size: 1.35rem;
     font-weight: 700;
-    margin: 0;
-    letter-spacing: .3px;
-    font-size: 1.1rem;
+    color: var(--dlg-fg);
+    position: relative;
 }
 
-/* بدنه محتوا */
+    .dialog-title::after {
+        content: "";
+        display: block;
+        width: 70px;
+        height: 3px;
+        background: var(--dlg-accent);
+        margin: 8px auto 0;
+        border-radius: 2px;
+    }
+
+/*===================================
+  بدنهٔ مودال
+====================================*/
 .dialog-body {
-    margin: 12px 6px 8px;
+    margin: 20px 32px; /* حاشیه بیشتر */
+    font-size: 1rem; /* متن کمی بزرگ‌تر */
+    line-height: 1.6;
+    color: var(--dlg-fg) !important;
+    text-align: right !important;
+    direction: rtl;
 }
 
-/* نوار اکشن‌ها */
+    /* بزرگ‌تر کردن تکست‌اِریا */
+    .dialog-body textarea {
+        background: #2a2a40;
+        border: 1px solid var(--dlg-border);
+        color: var(--dlg-fg) !important;
+        border-radius: 4px;
+        padding: 10px;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 16px;
+        min-height: 180px; /* ارتفاع بیشتر */
+        font-size: 1rem;
+        resize: vertical; /* فقط عمودی قابل تغییر */
+    }
+
+    /* سایر المان‌های فرم */
+    .dialog-body input,
+    .dialog-body select {
+        background: #2a2a40;
+        border: 1px solid var(--dlg-border);
+        color: var(--dlg-fg) !important;
+        border-radius: 4px;
+        padding: 8px;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 12px;
+    }
+
+/*===================================
+  دکمه‌ها / اکشن‌ها
+====================================*/
 .dialog-buttons {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 1rem;
-    margin-top: 8px;
+    margin: 0 0 20px;
+    width: 100%;
 }
 
-/* دکمه‌های مشترک */
 .modal-btn {
-    min-width: 110px;
-    font-weight: 600;
-    padding: 6px 18px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-width: 130px;
+    padding: 10px 24px;
     border-radius: 6px;
-    color: #fff; /* متن سفید برای هر دو */
-    border: none;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.15s ease-in-out;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
-/* دکمه تأیید (سبز) */
+/* دکمهٔ تأیید */
 .ok-btn {
-    background-color: #10b981;
+    background: var(--dlg-accent) !important;
+    color: #fff !important;
+    border: 2px solid var(--dlg-accent-d) !important;
 }
 
-/* دکمه لغو (قرمز) */
+    .ok-btn:hover:not(:disabled) {
+        background: var(--dlg-accent-d) !important;
+        box-shadow: 0 4px 12px rgba(1,105,204,0.4) !important;
+        transform: translateY(-1px) scale(1.02);
+    }
+
+/* دکمهٔ انصراف */
 .cancel-btn {
-    background-color: #ef4444;
+    background: transparent !important;
+    color: var(--dlg-fg) !important;
+    border: 2px solid var(--dlg-border) !important;
 }
 
-/* اسپینر بارگذاری */
+    .cancel-btn:hover:not(:disabled) {
+        background: rgba(255,255,255,0.05) !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+    }
+
+/* حالت غیرفعال */
+.modal-btn:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+}
+
+/*===================================
+  اسپینر بارگذاری
+====================================*/
 .loading-spinner {
-    width: 18px !important;
-    height: 18px !important;
+    width: 22px !important;
+    height: 22px !important;
+    color: var(--dlg-accent) !important;
+}
+
+/*===================================
+  ریسپانسیو
+====================================*/
+@media (max-width: 600px) {
+    .custom-dialog {
+        width: 95vw !important;
+    }
+
+    .dialog-body {
+        margin: 16px 20px;
+    }
+
+    .modal-btn {
+        min-width: 110px;
+        font-size: 0.9rem;
+        padding: 8px 20px;
+    }
+
+    .dialog-body textarea {
+        min-height: 140px;
+    }
 }

@@ -4,6 +4,7 @@ using BlazorApp1.Components.DynamicTable;
 using BlazorApp1.Models.Attendance;
 using BlazorApp1.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
+
 using MudBlazor;
 
 namespace BlazorApp1.Pages.Attendance;
@@ -12,7 +13,6 @@ public partial class Attendance : ComponentBase, IDisposable
 {
     /* ---------- تزریق سرویس‌ها ---------- */
     [Inject] private IApiService ApiService { get; set; } = default!;
-    //[Inject] private IDialogService DialogService { get; set; } = default!;
 
     /* ---------- فیلدها ---------- */
     private DateTime _now = DateTime.Now;
@@ -52,6 +52,7 @@ public partial class Attendance : ComponentBase, IDisposable
     private void HandleCheckIn()
     {
         StartTime = DateTime.Now;
+        StopTime = null;
 
         _elapsedTimer?.Dispose();
         _elapsedTimer = new(1000);
@@ -64,7 +65,7 @@ public partial class Attendance : ComponentBase, IDisposable
         if (!StartTime.HasValue) return;
 
         StopTime = DateTime.Now;
-        _elapsedTimer?.Dispose();
+        _elapsedTimer?.Dispose();      // متوقف کردن بروزرسانی تایمر
 
         await ShowExitDialogAsync();
     }
@@ -87,19 +88,18 @@ public partial class Attendance : ComponentBase, IDisposable
                 builder.AddAttribute(5, "Text", BindConverter.FormatValue(Tasks));
                 builder.AddAttribute(6, "TextChanged",
                     EventCallback.Factory.Create<string>(this, v => Tasks = v));
-                builder.AddAttribute(7, "TextExpression", (Expression<Func<string>>)(() => Tasks));
+                builder.AddAttribute(7, "For", (Expression<Func<string>>)(() => Tasks));
                 builder.CloseComponent();
             })
         };
 
-        /* متد توصیه‌شدهٔ جدید → ShowAsync */
         var dialogRef = await DialogService.ShowAsync<AllModal>(string.Empty, parameters);
         var result = await dialogRef.Result;
 
         if (!result.Canceled)
             await PersistExitAsync();
         else
-            StopTime = null; // لغو شد
+            StopTime = null;   // لغو شد → ادامهٔ تایمر
     }
 
     /* ---------- منطق کسب‌وکار ---------- */
@@ -131,7 +131,7 @@ public partial class Attendance : ComponentBase, IDisposable
     /* ---------- مقادیر محاسبه‌شده ---------- */
     private string ElapsedStr =>
         StartTime.HasValue
-            ? (DateTime.Now - StartTime.Value).ToString(@"hh\:mm\:ss")
+            ? ((StopTime ?? DateTime.Now) - StartTime.Value).ToString(@"hh\:mm\:ss")
             : "00:00:00";
 
     private string TotalDuration
@@ -151,9 +151,9 @@ public partial class Attendance : ComponentBase, IDisposable
     {
         new("tasks",      "کارهای امروز", e => b => b.AddContent(0, e.Tasks)),
         new("duration",   "مدت زمان",    e => b => b.AddContent(0, e.Duration)),
-        new("checkOut",   "خروج",         e => b => b.AddContent(0, FormatTime(e.CheckOut))),
-        new("checkIn",    "ورود",         e => b => b.AddContent(0, FormatTime(e.CheckIn))),
-        new("shamsiDate", "تاریخ",        e => b => b.AddContent(0, e.ShamsiDate))
+        new("checkOut",   "خروج",        e => b => b.AddContent(0, FormatTime(e.CheckOut))),
+        new("checkIn",    "ورود",        e => b => b.AddContent(0, FormatTime(e.CheckIn))),
+        new("shamsiDate", "تاریخ",       e => b => b.AddContent(0, e.ShamsiDate))
     };
 
     /* ---------- ابزار ---------- */

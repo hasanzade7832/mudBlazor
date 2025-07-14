@@ -27,7 +27,7 @@ builder.Services.AddTransient<TokenHandler>();
 
 builder.Services.AddMudServices();
 
-
+builder.Services.AddMudServices();
 
 // ثبت HttpClient و متصل کردن TokenHandler به HttpClientHandler
 builder.Services.AddScoped(sp =>

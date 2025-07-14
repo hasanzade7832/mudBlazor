@@ -1,50 +1,47 @@
-﻿@using MudBlazor
+﻿@* KargardoonAppBar.razor *@
+@using MudBlazor
 @using System.Text.Json
 @inject IJSRuntime JS
 @inject NavigationManager NavManager
-@using BlazorApp1.Services
-@using BlazorApp1.Services.Interfaces
-@inject IAdminService AdminService
-@inject SignalRService SignalRService
+@inject BlazorApp1.Services.SignalRService SignalRService
 
-<MudAppBar Elevation="1" Color="Color.Primary" Dense="true" Class="px-4 py-1 relative">
+<MudAppBar Class="dark-appbar" Elevation="0">
 
-    <!-- برند -->
-    <MudText Typo="Typo.h5" Class="text-white font-extrabold select-none">
+    <!-- لوگو -->
+    <MudText Typo="Typo.h6" Class="brand">
         Kargardoon
     </MudText>
 
-    <!-- منوی وسط (≥ 960 px) -->
-    <MudHidden Breakpoint="Breakpoint.MdAndDown">
-        <div class="nav-center">
+    <!-- منوی افقی -->
+    <MudHidden Breakpoint="Breakpoint.SmAndDown">
+        <nav class="nav-center">
             @foreach (var item in MenuItems)
             {
                 if (!item.Show) continue;
-                bool active = IsActive(item.Href);
+                var active = IsActive(item.Href);
 
-                <MudButton Variant="Variant.Filled"
-                           Color="@(active ? Color.Secondary : Color.Inherit)"
+                <MudButton Class="@GetBtnClass(active)"
                            Href="@item.Href"
                            EndIcon="@item.Icon"
-                           DisableRipple="true"
-                           Class="@GetBtnClass(active)">
+                           DisableRipple="true">
                     @item.Text
                 </MudButton>
             }
-        </div>
+        </nav>
     </MudHidden>
 
     <MudSpacer />
 
-    <!-- منوی آدمک (≥ 960 px) -->
-    <MudHidden Breakpoint="Breakpoint.MdAndDown">
-        <MudMenu AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" Class="mx-2">
+    <!-- منوی کاربری -->
+    <MudHidden Breakpoint="Breakpoint.SmAndDown">
+        <MudMenu Class="user-menu"
+                 AnchorOrigin="Origin.BottomCenter"
+                 TransformOrigin="Origin.TopCenter">
+
             <ActivatorContent>
-                <MudButton Variant="Variant.Text" Color="Color.Inherit"
-                           Class="nav-compact-btn flex items-center gap-3">
-                    @* ← فاصله بیشتر اینجا *@
-                    <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Size="Size.Medium" />
-                    <span style="margin-inline: 0.4rem;">@UserNameLocal</span>
+                <MudButton DisableRipple="true" Class="user-btn">
+                    <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Class="account-icon" />
+                    <span class="username">@UserNameLocal</span>
                     <MudIcon Icon="@Icons.Material.Filled.KeyboardArrowDown" />
                 </MudButton>
             </ActivatorContent>
@@ -52,13 +49,13 @@
             <ChildContent>
                 @if (IsAdminLocal)
                 {
-                    <MudMenuItem OnClick="GoToAdminPanel" Class="user-menu-item">
+                    <MudMenuItem OnClick="GoToAdminPanel" Class="user-menu-item profile-link">
                         پنل ادمین
                     </MudMenuItem>
                 }
                 else
                 {
-                    <MudMenuItem OnClick="GoToProfile" Class="user-menu-item">
+                    <MudMenuItem OnClick="GoToProfile" Class="user-menu-item profile-link">
                         پروفایل کاربری
                     </MudMenuItem>
                 }
@@ -69,40 +66,30 @@
         </MudMenu>
     </MudHidden>
 
-    <!-- منوی همبرگری (< 960 px) -->
+    <!-- منوی همبرگری (ریسپانسیو) -->
     <MudHidden Breakpoint="Breakpoint.MdAndUp">
         <MudMenu Icon="@Icons.Material.Filled.Menu"
-                 Color="Color.Inherit"
-                 AnchorOrigin="Origin.BottomRight"
-                 TransformOrigin="Origin.TopRight"
-                 Dense="true">
+                 Dense="true"
+                 Class="burger-menu">
 
             @foreach (var item in MenuItems)
             {
                 if (!item.Show) continue;
-                <MudMenuItem Href="@item.Href" Class="mobile-menu-item">
-                    @item.Text
-                </MudMenuItem>
+                <MudMenuItem Href="@item.Href" Class="burger-item">@item.Text</MudMenuItem>
             }
 
             <MudDivider />
 
             @if (IsAdminLocal)
             {
-                <MudMenuItem OnClick="GoToAdminPanel" Class="mobile-menu-item">
-                    پنل ادمین
-                </MudMenuItem>
+                <MudMenuItem OnClick="GoToAdminPanel" Class="burger-item profile-link">پنل ادمین</MudMenuItem>
             }
             else
             {
-                <MudMenuItem OnClick="GoToProfile" Class="mobile-menu-item">
-                    پروفایل کاربری
-                </MudMenuItem>
+                <MudMenuItem OnClick="GoToProfile" Class="burger-item profile-link">پروفایل کاربری</MudMenuItem>
             }
 
-            <MudMenuItem OnClick="Logout" Class="mobile-menu-item exit">
-                خروج
-            </MudMenuItem>
+            <MudMenuItem OnClick="Logout" Class="burger-item exit">خروج</MudMenuItem>
         </MudMenu>
     </MudHidden>
 
@@ -113,19 +100,18 @@
     private bool IsAdminLocal;
     private string UserNameLocal = "کاربر";
 
-    /* ---------- آیتم‌های منوی وسط ---------- */
-    private readonly record struct MenuItem(
-        string Href, string Text, string Icon, bool Show = true);
+    /* ---------- آیتم‌های منو ---------- */
+    private readonly record struct MenuItem(string Href, string Text, string Icon, bool Show = true);
 
-    private IEnumerable<MenuItem> MenuItems => new MenuItem[]
+    private IEnumerable<MenuItem> MenuItems => new[]
     {
-        new MenuItem("/Egg",            "تخم‌مرغ‌ها",    Icons.Material.Filled.BreakfastDining),
-        new MenuItem("/Internet",       "هزینه اینترنت", Icons.Material.Filled.Public),
-        new MenuItem("/PettyCash",      "تنخواه",        Icons.Material.Filled.CreditCard, IsAdminLocal),
-        new MenuItem("/TaskLog",        "تایم‌ترکر",     Icons.Material.Filled.AccessTime),
-        new MenuItem("/MyTasks", "تسک های من ",           Icons.Material.Filled.ListAlt),
-        new MenuItem("/Attendance",     "حضور",          Icons.Material.Filled.Schedule),
-        new MenuItem("/home",           "خانه",          Icons.Material.Filled.Home)
+        new MenuItem("/Egg",        "تخم‌مرغ‌ها",    Icons.Material.Filled.BreakfastDining),
+        new MenuItem("/Internet",   "هزینه اینترنت", Icons.Material.Filled.Public),
+        new MenuItem("/PettyCash",  "تنخواه",        Icons.Material.Filled.CreditCard, IsAdminLocal),
+        new MenuItem("/TaskLog",    "تایم‌ترکر",     Icons.Material.Filled.AccessTime),
+        new MenuItem("/MyTasks",    "تسک‌های من",    Icons.Material.Filled.ListAlt),
+        new MenuItem("/Attendance", "حضور",          Icons.Material.Filled.Schedule),
+        new MenuItem("/home",       "خانه",          Icons.Material.Filled.Home)
     };
 
     /* ---------- چرخهٔ حیات ---------- */
@@ -137,8 +123,7 @@
 
     /* ---------- متدهای کمکی ---------- */
     private static string GetBtnClass(bool active) =>
-        active ? "nav-compact-btn mud-button-filled-secondary"
-               : "nav-compact-btn";
+        active ? "nav-btn active" : "nav-btn";
 
     private bool IsActive(string href)
     {
@@ -154,9 +139,7 @@
         {
             var rel = NavManager.ToBaseRelativePath(NavManager.Uri).Trim('/').ToLowerInvariant();
             if (rel is not ("login" or "signup"))
-            {
                 NavManager.NavigateTo("/login");
-            }
             return;
         }
 
@@ -172,7 +155,6 @@
     /* ---------- عملیات ---------- */
     private void GoToProfile() => NavManager.NavigateTo("/profile");
     private void GoToAdminPanel() => NavManager.NavigateTo("/admin");
-
     private async Task Logout()
     {
         await JS.InvokeVoidAsync("localStorage.removeItem", "user");
@@ -181,7 +163,7 @@
         NavManager.NavigateTo("/login");
     }
 
-    /* ---------- DTO ساده ---------- */
+    /* ---------- DTO ---------- */
     private sealed class LocalUser
     {
         public string? UserName { get; set; }

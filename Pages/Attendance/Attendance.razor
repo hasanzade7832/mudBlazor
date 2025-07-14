@@ -2,40 +2,50 @@
 @using BlazorApp1.Models.Attendance
 @using MudBlazor
 
+@inject IDialogService DialogService
+
 <div class="attendance-row-modern">
-    <!-- ستون راست: تایمر و دکمه‌ها -->
-    <div class="attendance-col-modern clock-side-modern">
-        <div class="digital-clock-modern">
+
+    <!-- ستون جدول + مجموع کل زمان -->
+    <div class="glass-card table-side-modern">
+        <div class="total-duration-glass">
+            <span>@TotalDuration</span>
+            : مجموع کل زمان
+        </div>
+
+        <DynamicTable TItem="TimeEntry"
+                      Items="Entries"
+                      Columns="Columns" />
+    </div>
+
+    <!-- ستون ساعت، تایمر، دکمه‌ها -->
+    <div class="glass-card clock-side-modern">
+        <div class="glass-clock-led">
             <DigitalClock />
         </div>
-        <div class="elapsed-label-modern">
-            زمان کار انجام شده: <span>@ElapsedStr</span>
+
+        <div class="elapsed-label-glass">
+            <span>@ElapsedStr</span>
+            : زمان کار انجام شده
         </div>
-        <div class="modern-btn-group">
-            <MudButton Disabled="@StartTime.HasValue" OnClick="HandleCheckIn" Class="modern-btn modern-btn-checkin">
+
+        <div class="modern-btn-group-glass">
+
+            <!-- دکمه ورود -->
+            <MudButton Disabled="@StartTime.HasValue"
+                       Class="modern-btn-glass modern-btn-glass-checkin"
+                       OnClick="HandleCheckIn">
+                <MudIcon Icon="@Icons.Material.Filled.Login" />
                 ورود
             </MudButton>
-            <MudButton Disabled="@(!StartTime.HasValue)" OnClick="HandleCheckOut" Class="modern-btn modern-btn-checkout">
+
+            <!-- دکمه خروج (قرمز) -->
+            <MudButton Disabled="@(!StartTime.HasValue)"
+                       Class="modern-btn-glass modern-btn-glass-checkout"
+                       OnClick="HandleCheckOut">
+                <MudIcon Icon="@Icons.Material.Filled.Logout" />
                 خروج
             </MudButton>
-        </div>
-        <div class="total-duration-modern">
-            مجموع کل زمان: <span>@TotalDuration</span>
-        </div>
-    </div>
-    <!-- ستون چپ: جدول -->
-    <div class="attendance-col-modern table-side-modern">
-        <div class="table-glass-modern">
-            @if (Entries?.Count > 0)
-            {
-                <DynamicTable TItem="TimeEntry" Items="Entries" Columns="Columns" />
-            }
-            else
-            {
-                <div class="alert-empty-modern">
-                    هنوز هیچ زمان حضوری ثبت نشده است.
-                </div>
-            }
         </div>
     </div>
 </div>

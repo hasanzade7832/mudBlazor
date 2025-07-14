@@ -1,54 +1,62 @@
 ﻿@typeparam TItem
 @using MudBlazor
+@inject IJSRuntime JS
 
-<MudTable T="TItem" Items="Items" Hover="true" Striped="true" Dense="true" Class="custom-dynamic-table">
-    <HeaderContent>
-        @foreach (var col in Columns)
-        {
-            <MudTh Align="Center">@col.Title</MudTh>
-        }
-    </HeaderContent>
-    <RowTemplate>
-        @foreach (var col in Columns)
-        {
-            <MudTd Align="Center">
-                @if (col.Template != null)
+<div class="dynamic-table-wrapper" @ref="wrapper">
+    <div class="dynamic-table-scroll-inner">
+        <MudTable T="TItem"
+                  Items="Items"
+                  Hover="true"
+                  Dense="true"
+                  StickyHeader="true"
+                  Class="dynamic-table">
+            <HeaderContent>
+                @foreach (var col in Columns)
                 {
-                    @col.Template(context)
+                    var thClass = col.Key == "todayTasks"
+                    ? "header-cell-small"
+                    : "header-cell-large";
+                    <MudTh Align="Center" Class="@thClass">@col.Title</MudTh>
                 }
-                else
+            </HeaderContent>
+
+            <RowTemplate>
+                @foreach (var col in Columns)
                 {
-                    @context?.GetType().GetProperty(col.Key)?.GetValue(context)
+                    var tdClass = col.Key == "todayTasks"
+                    ? "body-cell-small"
+                    : "body-cell-large";
+                    <MudTd Align="Center" Class="@tdClass">
+                        @if (col.Template is not null)
+                        {
+                            @col.Template(context)
+                        }
+                        else
+                        {
+                            @context?.GetType().GetProperty(col.Key)?.GetValue(context)
+                        }
+                    </MudTd>
                 }
-            </MudTd>
-        }
-    </RowTemplate>
-</MudTable>
-
-<style>
-    .custom-dynamic-table {
-        border: 1px solid #c7d2fe;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 0 10px #e0e7ff;
-    }
-
-    .mud-table {
-        background-color: #f9fafb;
-    }
-
-    .mud-table-header {
-        background-color: #3b82f6;
-        color: white;
-        text-align: center;
-    }
-
-    .mud-table-cell {
-        text-align: center;
-    }
-</style>
+            </RowTemplate>
+        </MudTable>
+    </div>
+</div>
 
 @code {
+    ElementReference wrapper;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync(
+                "eval",
+                "document.querySelector('.dynamic-table-wrapper').scrollLeft = " +
+                "document.querySelector('.dynamic-table-wrapper').scrollWidth;"
+            );
+        }
+    }
+
     public class TableColumn
     {
         public string Key { get; set; }

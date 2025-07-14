@@ -1,16 +1,215 @@
-﻿.dynamic-table {
-    border-radius: 1rem;
-    overflow: hidden;
-    background: #fff;
-    box-shadow: 0 2px 16px rgba(44,62,80,0.08);
+﻿/*********************************
+  جدول داینامیک – دارک، شیشه‌ای، اسکرول حرفه‌ای
+*********************************/
+
+/* ❶ ظرف اسکرول افقی */
+.dynamic-table-wrapper {
+    direction: rtl !important; /* نوار افقی راست⇢چپ */
+    overflow-x: auto; /* حتماً باشد */
+
+    background: rgba(19,23,34,0.88);
+    border-radius: 18px;
+    box-shadow: 0 8px 40px 0 #22263b61, 0 1px 9px 0 #0169cc29;
+    padding: 20px 22px;
+    margin: 18px 0;
+    max-width: 100%;
+    border: 1.5px solid rgba(56,189,248,0.10);
+    backdrop-filter: blur(12px);
+    transition: box-shadow .18s;
 }
 
-    .dynamic-table th {
-        font-weight: bold;
-        background: linear-gradient(90deg, #6366f1 0%, #1e3a8a 100%);
-        color: #fff;
+    .dynamic-table-wrapper:hover {
+        box-shadow: 0 12px 52px 0 #1e253d95, 0 2px 14px 0 #0169cc40;
+        border-color: #0169cc44;
     }
 
-    .dynamic-table td {
-        vertical-align: middle;
+/* ❷ لایهٔ میانی – نگه‌دارندهٔ جدول */
+.dynamic-table-scroll-inner {
+    direction: ltr !important; /* جلوی RTL دوم را می‌گیرد */
+    display: inline-block; /* عرض = عرض جدول شود */
+}
+
+/* ❸ خود جدول */
+.dynamic-table {
+    direction: rtl !important; /* ترتیب ستون‌ها راست به چپ */
+
+    background: transparent !important;
+    color: #e7ecfa !important;
+    border-radius: 10px;
+    width: 100%;
+    font-size: 1rem;
+    font-family: 'Vazirmatn', IRANSans, Tahoma, sans-serif;
+    box-shadow: none;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+    /* ❹ ظرف اسکرول عمودی */
+    .dynamic-table .mud-table-container {
+        direction: ltr !important; /* نوار عمودی سمت راست */
+        max-height: 600px;
+        min-height: 400px;
+        overflow-y: auto;
     }
+
+    /*========== هدر =========*/
+    .dynamic-table thead th,
+    .dynamic-table .mud-table-th,
+    .header-cell-small,
+    .header-cell-large {
+        background: rgba(30,36,52,0.94) !important;
+        color: #fff !important;
+        font-weight: bold !important;
+        font-size: 1.08rem;
+        border-bottom: 2px solid #0169cc99;
+        text-align: center !important;
+        padding: 12px 16px !important;
+        letter-spacing: 0.7px;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        text-shadow: 0 2px 14px #1e293b55;
+        box-shadow: 0 2px 16px 0 #0169cc0c;
+        transition: background 0.15s;
+        border-radius: 0 !important;
+    }
+
+/* عرض ستون‌ها */
+.header-cell-small {
+    min-width: 110px;
+    width: 11%;
+}
+
+.header-cell-large {
+    min-width: 160px;
+    width: 22%;
+}
+
+.body-cell-small {
+    min-width: 110px;
+    width: 11%;
+}
+
+.body-cell-large {
+    min-width: 160px;
+    width: 22%;
+}
+
+/*========== بدنه =========*/
+.dynamic-table tbody {
+    display: table-row-group;
+    max-height: 340px;
+    overflow-y: auto;
+}
+
+    .dynamic-table tbody tr {
+        transition: background 0.18s, box-shadow 0.18s;
+        border-bottom: 1px solid #262737;
+        cursor: pointer;
+        position: relative;
+    }
+
+        .dynamic-table tbody tr:hover {
+            background: linear-gradient(87deg,#212331ee 60%,#232a3aee 100%);
+            box-shadow: 0 0 14px 0 #0169cc25;
+            z-index: 1;
+        }
+
+.dynamic-table td,
+.dynamic-table .mud-table-td {
+    color: #e8eaf5 !important;
+    background: transparent !important;
+    text-align: center !important;
+    padding: 11px 13px !important;
+    font-size: 1.01rem;
+    border-bottom: 1px solid #232432;
+    vertical-align: middle;
+    transition: background 0.18s,color 0.14s;
+    word-break: break-word;
+    box-shadow: 0 1px 12px 0 #0169cc12 inset;
+}
+
+.dynamic-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/*========== اسکرول‌بار افقی سفارشی =========*/
+.dynamic-table-wrapper::-webkit-scrollbar {
+    height: 7px;
+    width: 9px;
+    background: transparent;
+}
+
+.dynamic-table-wrapper::-webkit-scrollbar-thumb {
+    background: #31344a;
+    border-radius: 5px;
+}
+
+    .dynamic-table-wrapper::-webkit-scrollbar-thumb:hover {
+        background: #0169ccbb;
+    }
+
+.dynamic-table-wrapper {
+    scrollbar-color: #31344a #232323;
+    scrollbar-width: thin;
+}
+
+/* سلولِ فعال */
+.dynamic-table td:focus,
+.dynamic-table .mud-table-td:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #38bdf899 inset !important;
+    color: #38bdf8 !important;
+    background: #0f223877 !important;
+}
+
+/* Fade Animation */
+.dynamic-table tbody tr {
+    animation: fadeInRow .45s cubic-bezier(.46,.67,.43,1.24);
+}
+
+@keyframes fadeInRow {
+    from {
+        opacity: 0;
+        transform: translateY(22px) scale(.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/*========== واکنش‌گرا =========*/
+@media (max-width:900px) {
+    .dynamic-table-wrapper {
+        padding: 12px 2px;
+    }
+
+    .dynamic-table th, .dynamic-table td {
+        padding: 9px 7px !important;
+        font-size: .97rem;
+    }
+
+    .header-cell-small, .header-cell-large,
+    .body-cell-small, .body-cell-large {
+        min-width: 84px !important;
+        width: auto !important;
+    }
+
+    .dynamic-table .mud-table-container {
+        max-height: 300px;
+        min-height: 180px;
+    }
+}
+
+@media (max-width:600px) {
+    .dynamic-table-wrapper {
+        padding: 5px 0;
+    }
+
+    .dynamic-table th, .dynamic-table td {
+        padding: 6px 2px !important;
+        font-size: .93rem;
+    }
+}
