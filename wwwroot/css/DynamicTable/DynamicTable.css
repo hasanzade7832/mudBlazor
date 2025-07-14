@@ -1,336 +1,86 @@
-﻿/*********************************
-  پالت و بک‌گراند
-*********************************/
-:root {
-    --glass-bg: rgba(0, 0, 0, 0.90);
-    --glass-blur: blur(18px);
-    --glass-border: rgba(56,189,248,0.13);
-    --glass-glow: 0 0 36px #0169cc66;
-    --glass-shadow: 0 8px 28px 0 #1e293b66;
-    --glass-fg: #e5ecfe;
-    --glass-accent: #38bdf8;
-    --glass-accent-dark: #0169cc;
-    --glass-table-bg: rgba(25,31,46,0.89);
-}
+﻿/* === جدول داینامیک تم دارک === */
 
-/*********************************
-  گرید کلی
-*********************************/
-.attendance-row-modern {
-    display: grid;
-    grid-template-columns: 1fr 1.15fr;
-    gap: 38px;
-    padding: 54px 24px 32px 24px;
-    min-height: 100vh;
-    width: 100%; /* ← اصلاح‌شده: قبلاً 100vw بود */
+/* wrapper و scroll-inner همان‌طور که قبلاً بود */
+.dynamic-table-wrapper {
+    width: 100%;
+    direction: rtl;
+    overflow-x: auto;
     box-sizing: border-box;
 }
 
-.clock-side-modern {
-    order: 2;
-}
+    .dynamic-table-wrapper .dynamic-table-scroll-inner {
+        direction: ltr;
+        min-width: 800px;
+    }
 
-.table-side-modern {
-    order: 1;
-}
-
-/*********************************
-  کارت شیشه‌ای
-*********************************/
-.glass-card {
-    background: var(--glass-bg);
-    box-shadow: var(--glass-shadow), var(--glass-glow);
-    border-radius: 26px;
-    border: 1.5px solid var(--glass-border);
-    backdrop-filter: var(--glass-blur);
-    padding: 42px 30px 38px 30px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 340px;
-    min-height: 540px;
-    overflow: hidden;
-}
-
-.table-side-modern .glass-card {
-    /* وقتی داخل کارت جدول است، اجازهٔ اسکرول عمودی بده */
-    overflow: visible;
-}
-
-/*********************************
-  ساعت دیجیتال
-*********************************/
-.glass-clock-led {
+/* خود جدول */
+.dynamic-table {
     width: 100%;
-    margin: 0 auto 24px;
-    display: flex;
-    justify-content: center;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--glass-table-bg) !important; /* شیشه‌ای تیره */
+    color: var(--glass-fg) !important; /* متن روشن */
 }
 
-.led-clock {
-    font-size: 3rem;
-    font-weight: bold;
-    letter-spacing: 8px;
-    color: var(--glass-accent);
-    font-family: 'Courier New', monospace;
-    text-shadow: 0 0 8px var(--glass-accent), 0 0 20px var(--glass-accent-dark);
-    background: #111827ea;
-    border-radius: 14px;
-    border: 2px solid var(--glass-accent-dark);
-    box-shadow: 0 0 24px #38bdf866, 0 0 8px #0169cc99;
-    min-width: 320px;
-    padding: 18px 0 14px;
+    /* پاک‌سازی پس‌زمینه‌ی پیش‌فرض MudBlazor */
+    .dynamic-table .mud-table-root,
+    .dynamic-table .mud-table-header,
+    .dynamic-table .mud-table-body {
+        background: transparent !important;
+    }
+
+    /* هدر */
+    .dynamic-table thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .dynamic-table th {
+        background: rgba(0, 0, 0, 0.75) !important; /* پس‌زمینه‌ی تیره */
+        color: var(--glass-fg) !important; /* متن روشن */
+        border-bottom: 1px solid rgba(255,255,255,0.12);
+        padding: 12px 16px;
+    }
+
+    /* ردیف‌ها و سلول‌ها */
+    .dynamic-table td {
+        background: rgba(0, 0, 0, 0.60) !important; /* بک‌گراند نیمه‌شفاف */
+        color: var(--glass-fg) !important;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        backdrop-filter: var(--glass-blur);
+        padding: 12px 16px;
+    }
+
+/* عرض ستون‌های کوچک/بزرگ */
+.header-cell-large {
+    min-width: 160px;
 }
 
-/*********************************
-  کارت‌های زمان
-*********************************/
-.elapsed-label-glass,
-.total-duration-glass {
-    background: rgba(36,45,66,0.60);
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 1px 6px #0284c780;
-    border-radius: 14px;
-    padding: 14px 24px;
-    margin: 18px 0;
-    width: 85%;
-    max-width: 470px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: .45rem;
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #fff;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.header-cell-small {
+    min-width: 100px;
 }
 
-    .elapsed-label-glass span,
-    .total-duration-glass span {
-        color: var(--glass-accent);
-        font-weight: 900;
-    }
-
-/*********************************
-  گروه دکمه‌ها – یکنواخت و مرتب
-*********************************/
-.modern-btn-group-glass {
-    width: 85%;
-    max-width: 470px;
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-    margin: 32px 0 12px;
+.body-cell-large {
+    min-width: 160px;
 }
 
-/*********************************
-  دکمه ورود (آبی)
-*********************************/
-.mud-button-root.modern-btn-glass.modern-btn-glass-checkin {
-    flex: 1;
-    height: 60px;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    flex-direction: row-reverse !important;
-    padding: 0 2rem !important;
-    font-size: 2rem !important;
-    font-weight: 900 !important;
-    color: #fff !important;
-    background: linear-gradient(95deg, #0169cc 0%, #38bdf8 80%) !important;
-    border: 2px solid #0169cc !important;
-    border-radius: 18px !important;
-    box-shadow: 0 0 18px 4px #0169cc80, 0 3px 22px 0 #38bdf870, 0 1.5px 9px #21212160 !important;
-    position: relative;
-    transition: all .18s cubic-bezier(.5,1.6,.4,.7) !important;
-    overflow: hidden;
-    isolation: isolate;
+.body-cell-small {
+    min-width: 100px;
 }
 
-    .mud-button-root.modern-btn-glass.modern-btn-glass-checkin::after {
-        content: '';
-        display: block;
-        position: absolute;
-        left: 20%;
-        top: -30%;
-        width: 140%;
-        height: 160%;
-        background: radial-gradient(circle at 25% 10%, #38bdf8aa 0, #0169cc33 70%, transparent 90%);
-        opacity: 0.25;
-        z-index: 0;
-        pointer-events: none;
-    }
-
-    .mud-button-root.modern-btn-glass.modern-btn-glass-checkin .mud-icon-root {
-        margin-right: 16px !important;
-        font-size: 2.1rem !important;
-        filter: drop-shadow(0 0 8px #38bdf8cc);
-        z-index: 1;
-    }
-
-    .mud-button-root.modern-btn-glass.modern-btn-glass-checkin:hover:enabled,
-    .mud-button-root.modern-btn-glass.modern-btn-glass-checkin:focus:enabled {
-        filter: brightness(1.10) saturate(1.35) !important;
-        transform: translateY(-3px) scale(1.035) !important;
-        box-shadow: 0 0 32px 6px #38bdf8cc, 0 8px 34px #0169cc88, 0 3px 12px #21212199 !important;
-        border-color: #38bdf8 !important;
-    }
-
-    .mud-button-root.modern-btn-glass.modern-btn-glass-checkin:disabled {
-        opacity: 0.38 !important;
-        color: #fff !important;
-        background: #1A237E !important;
-        border-color: #212121 !important;
-        box-shadow: none !important;
-        text-shadow: none;
-        filter: grayscale(.35);
-    }
-
-/*********************************
-  دکمه خروج (قرمز)
-*********************************/
-.mud-button-root.modern-btn-glass.modern-btn-glass-checkout {
-    flex: 1;
-    height: 60px;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    padding: 0 2rem !important;
-    font-size: 2rem !important;
-    font-weight: 900 !important;
-    color: #fff !important;
-    background: linear-gradient(92deg,#D50000 0%,#FF8A80 100%) !important;
-    border: 2px solid #b91c1c !important;
-    border-radius: 18px !important;
-    box-shadow: 0 0 18px 4px #D5000080, 0 3px 22px 0 #FF8A8060, 0 1.5px 9px #21212160 !important;
-    position: relative;
-    transition: all .18s cubic-bezier(.5,1.6,.4,.7) !important;
-    overflow: hidden;
-    isolation: isolate;
+/* هاور و زبرا (ردیف‌های متناوب) */
+.dynamic-table tbody tr:hover {
+    background: rgba(56,189,248,0.15) !important; /* رنگ تأکید خنثی */
 }
 
-    .mud-button-root.modern-btn-glass.modern-btn-glass-checkout::after {
-        content: '';
-        display: block;
-        position: absolute;
-        left: 35%;
-        top: -30%;
-        width: 120%;
-        height: 160%;
-        background: radial-gradient(circle at 65% 0%, #FF8A8088 0, #D5000022 70%, transparent 95%);
-        opacity: 0.28;
-        z-index: 0;
-        pointer-events: none;
-    }
-
-    .mud-button-root.modern-btn-glass.modern-btn-glass-checkout .mud-icon-root {
-        margin-right: 16px !important;
-        font-size: 2.1rem !important;
-        filter: drop-shadow(0 0 8px #FF8A80cc);
-        z-index: 1;
-    }
-
-    .mud-button-root.modern-btn-glass.modern-btn-glass-checkout:hover:enabled,
-    .mud-button-root.modern-btn-glass.modern-btn-glass-checkout:focus:enabled {
-        filter: brightness(1.10) saturate(1.25) !important;
-        transform: translateY(-3px) scale(1.035) !important;
-        box-shadow: 0 0 32px 8px #D50000cc, 0 10px 36px #FF8A8088, 0 3px 12px #21212199 !important;
-        border-color: #D50000 !important;
-    }
-
-    .mud-button-root.modern-btn-glass.modern-btn-glass-checkout:disabled {
-        opacity: 0.35 !important;
-        color: #fff !important;
-        background: #212121 !important;
-        border-color: #333 !important;
-        box-shadow: none !important;
-        text-shadow: none;
-        filter: grayscale(.35);
-    }
-
-/*********************************
-  Hover / Focus مشترک
-*********************************/
-.mud-button-root.modern-btn-glass:hover:enabled,
-.mud-button-root.modern-btn-glass:focus:enabled {
-    filter: brightness(1.07) !important;
-    transform: translateY(-2px) scale(1.03) !important;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.18) !important;
+.dynamic-table tbody tr:nth-child(odd) {
+    background: rgba(255,255,255,0.03) !important; /* کمی روشن‌تر برای زبرا */
 }
 
-/*********************************
-  Active مشترک
-*********************************/
-.mud-button-root.modern-btn-glass:active:enabled {
-    transform: translateY(0) scale(1.02) !important;
-}
-
-/*********************************
-  ریسپانسیو (دسکتاپ به موبایل)
-*********************************/
-@media (max-width: 768px) {
-
-    /* تک‌ستونه کردن و ترتیب */
-    .attendance-row-modern {
-        grid-template-columns: 1fr;
-        gap: 24px;
-    }
-
-    .clock-side-modern {
-        order: 1;
-    }
-
-    .table-side-modern {
-        order: 2;
-    }
-
-    /* اجازه دهید کارت کوچک شود تا اسکرول افقی ایجاد نشود */
-    .glass-card {
-        min-width: auto;
-    }
-
-    /* کاهش فونت برای جلوگیری از شکست */
-    .elapsed-label-glass,
-    .total-duration-glass {
-        font-size: 1.05rem;
-    }
-
-    /* دکمه‌های کوچک‌تر (همان قواعد قبلی 600px) */
-    .mud-button-root.modern-btn-glass.modern-btn-glass-checkin,
-    .mud-button-root.modern-btn-glass.modern-btn-glass-checkout {
-        height: 46px;
-        font-size: 1.18rem !important;
-        padding: 0 0.6rem !important;
-    }
-
-    .mud-button-root.modern-btn-glass .mud-icon-root {
-        font-size: 1.25rem !important;
-        margin-right: 10px !important;
-    }
-}
-
-/*********************************
-  ریسپانسیو قبلی (600px) ـ حفظ شده
-*********************************/
-@media (max-width: 600px) {
-    .mud-button-root.modern-btn-glass.modern-btn-glass-checkin,
-    .mud-button-root.modern-btn-glass.modern-btn-glass-checkout {
-        height: 46px;
-        font-size: 1.18rem !important;
-        padding: 0 0.6rem !important;
-    }
-
-    .mud-button-root.modern-btn-glass .mud-icon-root {
-        font-size: 1.25rem !important;
-        margin-right: 10px !important;
-    }
-}
-
-
-.dynamic-table-wrapper {
-    width: 100%;
-    overflow-x: auto; /* فقط این div افقی اسکرول بده */
-    box-sizing: border-box; /* برای محاسبه دقیق عرض */
+/* مرکزی‌چین کردن هدر و سلول‌ها */
+.dynamic-table thead th,
+.dynamic-table tbody td {
+    text-align: center !important; /* چپ‌چین پیش‌فرض را لغو می‌کند */
+    vertical-align: middle !important; /* در صورت چندخطی بودن، عمودی هم مرکز باشد */
 }
