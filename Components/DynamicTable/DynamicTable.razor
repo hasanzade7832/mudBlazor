@@ -3,48 +3,45 @@
 
 <div class="dynamic-table-wrapper">
     <div class="dynamic-table-scroll-inner">
-        <MudTable T="TItem"
-                  Items="Items"
-                  Hover="true"
-                  Dense="true"
-                  StickyHeader="true"
-                  Breakpoint="Breakpoint.None"
-                  Class="dynamic-table">
-            <HeaderContent>
-                @foreach (var col in Columns)
-                {
-                    var thClass = col.Key == "todayTasks"
+        <div class="dynamic-table-scroll-vertical">
+            <MudTable T="TItem"
+                      Items="Items"
+                      Hover="true"
+                      Dense="true"
+                      StickyHeader="true"
+                      Breakpoint="Breakpoint.None"
+                      Class="dynamic-table glass-table-no-bg">
+                <HeaderContent>
+                    @foreach (var col in Columns)
+                    {
+                        var thClass = col.Key == "todayTasks"
                         ? "header-cell-small"
                         : "header-cell-large";
-                    <MudTh Align="Center" Class="@thClass">
-                        @col.Title
-                    </MudTh>
-                }
-            </HeaderContent>
-            <RowTemplate>
-                @foreach (var col in Columns)
-                {
-                    var tdClass = col.Key == "todayTasks"
+                        <MudTh Align="Center" Class="@thClass">
+                            @col.Title
+                        </MudTh>
+                    }
+                </HeaderContent>
+                <RowTemplate>
+                    @foreach (var col in Columns)
+                    {
+                        var tdClass = col.Key == "todayTasks"
                         ? "body-cell-small"
                         : "body-cell-large";
-                    <MudTd Align="Center" Class="@tdClass">
-                        @if (col.Template is not null)
-                        {
-                            @col.Template(context)
-                        }
-                        else
-                        {
-                            @(   // کل عبارت رفرکت‌شده رو داخل @(…) می‌گذاریم
-                                context?
-                                    .GetType()
-                                    .GetProperty(col.Key)
-                                    ?.GetValue(context)
-                            )
-                        }
-                    </MudTd>
-                }
-            </RowTemplate>
-        </MudTable>
+                        <MudTd Align="Center" Class="@tdClass">
+                            @if (col.Template is not null)
+                            {
+                                @col.Template(context)
+                            }
+                            else
+                            {
+                                @(context?.GetType().GetProperty(col.Key)?.GetValue(context))
+                            }
+                        </MudTd>
+                    }
+                </RowTemplate>
+            </MudTable>
+        </div>
     </div>
 </div>
 

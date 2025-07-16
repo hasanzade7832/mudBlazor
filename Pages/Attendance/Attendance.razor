@@ -1,8 +1,7 @@
 ﻿@page "/attendance"
 @using BlazorApp1.Models.Attendance
 @using MudBlazor
-
-@inject IDialogService DialogService
+@inject MudBlazor.IDialogService DialogService
 
 <div class="attendance-row-modern">
 
@@ -30,8 +29,6 @@
         </div>
 
         <div class="modern-btn-group-glass">
-
-            <!-- دکمه ورود -->
             <MudButton Disabled="@StartTime.HasValue"
                        Class="modern-btn-glass modern-btn-glass-checkin"
                        OnClick="HandleCheckIn">
@@ -39,7 +36,6 @@
                 ورود
             </MudButton>
 
-            <!-- دکمه خروج (قرمز) -->
             <MudButton Disabled="@(!StartTime.HasValue)"
                        Class="modern-btn-glass modern-btn-glass-checkout"
                        OnClick="HandleCheckOut">

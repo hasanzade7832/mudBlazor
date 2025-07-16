@@ -1,0 +1,27 @@
+﻿@inject ISnackbar Snackbar
+
+@code {
+    // متد ایستا برای فراخوانی سریع
+    public static AppNotification? Instance { get; private set; }
+
+    protected override void OnInitialized()
+    {
+        Instance = this;
+    }
+
+    // تابع عمومی برای نمایش پیام موفقیت
+    public void ShowSuccess(string message)
+        => Snackbar.Add(message, Severity.Success);
+
+    // تابع عمومی برای نمایش پیام خطا
+    public void ShowError(string message)
+        => Snackbar.Add(message, Severity.Error);
+
+    // تابع عمومی برای نمایش پیام اطلاع‌رسانی
+    public void ShowInfo(string message)
+        => Snackbar.Add(message, Severity.Info);
+
+    // تابع عمومی برای نمایش پیام هشدار
+    public void ShowWarning(string message)
+        => Snackbar.Add(message, Severity.Warning);
+}

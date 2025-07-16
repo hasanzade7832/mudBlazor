@@ -1,20 +1,19 @@
 ﻿using System.Linq.Expressions;
 using BlazorApp1.Components;
 using BlazorApp1.Components.DynamicTable;
+using BlazorApp1.Components.Modal;
 using BlazorApp1.Models.Attendance;
 using BlazorApp1.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
-
 using MudBlazor;
 
 namespace BlazorApp1.Pages.Attendance;
 
 public partial class Attendance : ComponentBase, IDisposable
 {
-    /* ---------- تزریق سرویس‌ها ---------- */
     [Inject] private IApiService ApiService { get; set; } = default!;
+    // اینجا هیچ inject برای Snackbar یا ISnackbar نذار! فقط از AppNotification استفاده می‌کنیم.
 
-    /* ---------- فیلدها ---------- */
     private DateTime _now = DateTime.Now;
     private DateTime? StartTime = null;
     private DateTime? StopTime = null;
@@ -24,7 +23,6 @@ public partial class Attendance : ComponentBase, IDisposable
     private System.Timers.Timer? _clockTimer;
     private System.Timers.Timer? _elapsedTimer;
 
-    /* ---------- چرخهٔ حیات ---------- */
     protected override async Task OnInitializedAsync()
     {
         await LoadEntries();
@@ -44,11 +42,9 @@ public partial class Attendance : ComponentBase, IDisposable
         _elapsedTimer?.Dispose();
     }
 
-    /* ---------- داده ---------- */
     private async Task LoadEntries() =>
         Entries = await ApiService.GetAttendancesAsync();
 
-    /* ---------- رویدادهای UI ---------- */
     private void HandleCheckIn()
     {
         StartTime = DateTime.Now;
@@ -58,6 +54,8 @@ public partial class Attendance : ComponentBase, IDisposable
         _elapsedTimer = new(1000);
         _elapsedTimer.Elapsed += (_, _) => InvokeAsync(StateHasChanged);
         _elapsedTimer.Start();
+
+        AppNotification.Instance?.ShowSuccess("ورود با موفقیت ثبت شد");
     }
 
     private async Task HandleCheckOut()
@@ -65,44 +63,52 @@ public partial class Attendance : ComponentBase, IDisposable
         if (!StartTime.HasValue) return;
 
         StopTime = DateTime.Now;
-        _elapsedTimer?.Dispose();      // متوقف کردن بروزرسانی تایمر
+        _elapsedTimer?.Dispose();
 
         await ShowExitDialogAsync();
     }
 
-    /* ---------- دیالوگ ---------- */
     private async Task ShowExitDialogAsync()
+    {
+        var content = (RenderFragment)(builder =>
+        {
+            builder.OpenComponent<MudTextField<string>>(0);
+            builder.AddAttribute(1, "Lines", 3);
+            builder.AddAttribute(2, "FullWidth", true);
+            builder.AddAttribute(3, "Immediate", true);
+            builder.AddAttribute(4, "Placeholder", "کارهای انجام‌شده ...");
+            builder.AddAttribute(5, "Text", BindConverter.FormatValue(Tasks));
+            builder.AddAttribute(6, "TextChanged", EventCallback.Factory.Create<string>(this, v => Tasks = v));
+            builder.AddAttribute(7, "For", (Expression<Func<string>>)(() => Tasks));
+            builder.CloseComponent();
+        });
+
+        await ShowCustomDialog("ثبت خروج", "ثبت", "انصراف", content, PersistExitAsync);
+    }
+
+    // متد جنرال جهت استفاده سراسری AllModal
+    private async Task ShowCustomDialog(string title, string okText, string cancelText, RenderFragment content, Func<Task>? onOk = null)
     {
         var parameters = new DialogParameters
         {
-            ["Title"] = "ثبت خروج",
-            ["OkText"] = "ثبت",
-            ["CancelText"] = "انصراف",
-            ["ChildContent"] = (RenderFragment)(builder =>
-            {
-                builder.OpenComponent<MudTextField<string>>(0);
-                builder.AddAttribute(1, "Lines", 3);
-                builder.AddAttribute(2, "FullWidth", true);
-                builder.AddAttribute(3, "Immediate", true);
-                builder.AddAttribute(4, "Placeholder", "کارهای انجام‌شده ...");
-                builder.AddAttribute(5, "Text", BindConverter.FormatValue(Tasks));
-                builder.AddAttribute(6, "TextChanged",
-                    EventCallback.Factory.Create<string>(this, v => Tasks = v));
-                builder.AddAttribute(7, "For", (Expression<Func<string>>)(() => Tasks));
-                builder.CloseComponent();
-            })
+            ["Title"] = title,
+            ["OkText"] = okText,
+            ["CancelText"] = cancelText,
+            ["ShowCancelButton"] = true,
+            ["ChildContent"] = content
         };
 
-        var dialogRef = await DialogService.ShowAsync<AllModal>(string.Empty, parameters);
+        var options = new DialogOptions { CloseOnEscapeKey = false, MaxWidth = MaxWidth.Small };
+
+        var dialogRef = DialogService.Show<AllModal>(string.Empty, parameters, options);
         var result = await dialogRef.Result;
 
-        if (!result.Canceled)
-            await PersistExitAsync();
-        else
-            StopTime = null;   // لغو شد → ادامهٔ تایمر
+        if (!result.Canceled && onOk != null)
+            await onOk();
+        else if (title == "ثبت خروج")
+            StopTime = null;
     }
 
-    /* ---------- منطق کسب‌وکار ---------- */
     private async Task PersistExitAsync()
     {
         if (!StartTime.HasValue || !StopTime.HasValue) return;
@@ -125,10 +131,11 @@ public partial class Attendance : ComponentBase, IDisposable
             StartTime = null;
             StopTime = null;
             Tasks = string.Empty;
+
+            AppNotification.Instance?.ShowSuccess("خروج با موفقیت ثبت شد");
         }
     }
 
-    /* ---------- مقادیر محاسبه‌شده ---------- */
     private string ElapsedStr =>
         StartTime.HasValue
             ? ((StopTime ?? DateTime.Now) - StartTime.Value).ToString(@"hh\:mm\:ss")
@@ -156,7 +163,6 @@ public partial class Attendance : ComponentBase, IDisposable
         new("shamsiDate", "تاریخ",       e => b => b.AddContent(0, e.ShamsiDate))
     };
 
-    /* ---------- ابزار ---------- */
     private static string FormatTime(DateTime? time) =>
         time.HasValue ? time.Value.ToString("HH:mm:ss") : "—";
 }

@@ -31,11 +31,15 @@ $loading-progress-stroke: #1b6ec2;
 // =============================
 
 html, body {
+    height: 100%;
+    width: 100%;
     margin: 0;
     padding: 0;
-    // height نباشد بهتر است، اجازه دهیم محتوا با min-height در کانتینر کنترل شود. overflow-x: hidden;
-    font-family: $font-stack;
+    box-sizing: border-box;
+    /* جلوگیری از اسکرول افقی ناخواسته */
+    overflow-x: hidden;
 }
+
 
 // اگر لازم است reset بیشتری، می‌توانید اضافه کنید:
 // *, *::before, *::after {
@@ -416,9 +420,9 @@ code {
    ریستِ ارتفاع و اسکرول
    (در انتهای app.css اضافه کنید)
    ============================= */
-html, body, #app {
-    height: auto !important; /* بدنه اجازه دارد قد بکشد */
-    min-height: 100%; /* دست‌کم به‌اندازهٔ viewport */
-    overflow-x: hidden; /* نگه می‌داریم تا اسکرول افقی نباشد */
-    overflow-y: auto !important; /* اسکرول عمودی همیشه مجاز است */
-}
+/*html, body, #app {
+    height: auto !important;  بدنه اجازه دارد قد بکشد 
+    min-height: 100%;  دست‌کم به‌اندازهٔ viewport 
+    overflow-x: hidden;  نگه می‌داریم تا اسکرول افقی نباشد 
+    overflow-y: auto !important;  اسکرول عمودی همیشه مجاز است 
+}*/

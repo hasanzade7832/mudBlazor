@@ -3,19 +3,16 @@
 
 <MudDialog Class="custom-dialog">
 
-    <!-- عنوان -->
     <TitleContent>
         <h4 class="dialog-title">@Title</h4>
     </TitleContent>
 
-    <!-- بدنه -->
     <DialogContent>
         <div class="dialog-body">
             @ChildContent
         </div>
     </DialogContent>
 
-    <!-- دکمه‌ها -->
     <DialogActions>
         <div class="dialog-buttons">
             @if (ShowCancelButton)
@@ -40,11 +37,9 @@
             </MudButton>
         </div>
     </DialogActions>
-
 </MudDialog>
 
 @code {
-    /* ----- پارامترها ----- */
     [Parameter] public string Title { get; set; } = "پیام سیستم";
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public string OkText { get; set; } = "ثبت";
