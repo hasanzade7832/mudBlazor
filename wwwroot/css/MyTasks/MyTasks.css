@@ -1,60 +1,68 @@
-﻿.tasks-container-outer {
-    max-width: 830px;
-    margin: 0 auto;
-    padding: 16px 10px 45px 10px;
-}
+﻿
 
-.tasks-title {
-    text-align: center;
-    font-weight: bold;
-    color: #334155;
-    margin-top: 10px;
-    margin-bottom: 18px;
-    font-size: 2.2rem;
-    letter-spacing: 1px;
-}
-
-.tasks-box {
-    background: linear-gradient(115deg, #f1f5f9 90%, #f9fafb 100%);
-    border-radius: 30px;
-    box-shadow: 0 3px 24px 0 rgba(0,0,0,.10), 0 1.5px 6px 0 rgba(0,0,0,.06);
-    padding: 24px 8px 26px 8px;
-    min-height: 340px;
-    max-height: 74vh;
-    overflow-y: auto;
+.main-tasks-center-wrapper {
+    min-height: 100vh;
+    width: 100vw;
     display: flex;
-    flex-direction: column;
-    align-items: stretch;
-}
-
-.tasks-card-list {
-    display: flex;
-    flex-direction: column;
-    gap: 56px;
     align-items: center;
-    margin-top: 5px;
+    justify-content: center;
+    background: #101e2c;
+    ;
+    /* اگر می‌خوای وسط حتی با اسکرول: */
+    box-sizing: border-box;
+}
+
+/* باکس مرکزی تسک‌ها */
+.tasks-container-outer-dark {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #191e23 !important;
+    padding: 0;
+    margin: 0;
+    max-width: 1000px;
     width: 100%;
 }
 
-.mytask-alert {
-    padding: 1rem 2rem;
-    border-radius: 12px;
-    margin: 0 auto 26px auto;
-    font-weight: bold;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 500px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.11);
-    font-size: 1.1em;
-    gap: 12px;
-    animation: alertPop .28s cubic-bezier(.2,1.25,.7,1) backwards;
+/* باکس داخلی شیشه‌ای و مدرن با اسکرول */
+.tasks-box-dark {
+    width: 100%;
+    max-width: 920px;
+    background: #191e23 !important;
+    border-radius: 36px;
+    box-shadow: 0 7px 44px #1e293bcc;
+    padding: 38px 16px 44px 16px;
+    max-height: 80vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    /* مرکز افقی اسکرول */
+    margin: 0 auto;
 }
 
-@keyframes alertPop {
+/* گرید کارت‌ها */
+.tasks-grid-responsive {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, minmax(230px, 1fr));
+    gap: 32px;
+    justify-content: center;
+    align-items: stretch;
+    width: 100%;
+    margin: 0 auto;
+    padding: 6px 2px;
+    animation: grid-fade-in .7s cubic-bezier(.7,.2,.7,1.15) backwards;
+}
+
+    .tasks-grid-responsive.extra-tasks {
+        margin-top: 44px;
+    }
+
+@keyframes grid-fade-in {
     from {
         opacity: 0;
-        transform: translateY(-25px) scale(.95);
+        transform: scale(0.97) translateY(38px);
     }
 
     to {
@@ -63,44 +71,30 @@
     }
 }
 
-.close-btn {
-    background: none;
-    border: none;
-    font-size: 1.25em;
-    cursor: pointer;
-    color: inherit;
+/* ریسپانسیو */
+@media (max-width: 860px) {
+    .tasks-grid-responsive {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, minmax(220px, 1fr));
+        gap: 22px;
+    }
+
+    .tasks-box-dark {
+        padding: 20px 2px 24px 2px;
+        border-radius: 20px;
+    }
 }
 
-.alert-task-title {
-    font-weight: bold;
-    color: #0ea5e9;
-    margin-left: 8px;
-    font-size: 1.05em;
-}
+@media (max-width: 560px) {
+    .tasks-grid-responsive {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(6, minmax(160px, 1fr));
+        gap: 12px;
+        padding: 2px 1px;
+    }
 
-.no-tasks {
-    color: #aaa;
-    text-align: center;
-    font-size: 1.17rem;
-    margin-top: 60px;
-}
-
-.loading-text {
-    color: #334155;
-    font-size: 1.13em;
-    padding: 42px 0 18px 0;
-    font-weight: bold;
-    text-align: center;
-}
-
-/* اسکرول کارت‌ها */
-.tasks-card-list::-webkit-scrollbar {
-    height: 7px;
-    background: #e0e7ef;
-    border-radius: 8px;
-}
-
-.tasks-card-list::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 8px;
+    .tasks-box-dark {
+        padding: 5px 2px 10px 2px;
+        border-radius: 10px;
+    }
 }

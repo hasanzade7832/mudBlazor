@@ -1,69 +1,76 @@
 ﻿@using BlazorApp1.Models.TaskManagement
 @inject IAdminService AdminService
 
-<link href="css/MyTasks/MyTaskCard.css" rel="stylesheet" />
+<link href="css/MyTasks/MyTaskCardDark.css" rel="stylesheet" />
 
-<MudCard Class="@CardClass" Elevation="2">
-    <!-- بج‌ها بالا کارت -->
-    <div class="mytask-badges-top">
-        <div class="badge-floating badge-floating-left">
-            <MudChip T="string"
-                     Color="@RemainBadgeColor"
-                     Variant="Variant.Filled"
-                     Size="Size.Large"
-                     Class="badge-chip-top">
-                @RemainBadgeText
-            </MudChip>
+<MudCard Class="mytask-glass-card" Elevation="12">
+    @if (UserTask == null)
+    {
+        <div class="mytask-card-empty-glass">
+            <div class="empty-glass-icon-center">
+                <svg width="40" height="40" viewBox="0 0 52 52" fill="none">
+                    <circle cx="26" cy="26" r="18" stroke="#38bdf8" stroke-width="2.5" opacity="0.32" />
+                    <circle cx="26" cy="26" r="14" stroke="#38bdf8" stroke-width="1.3" opacity="0.15" />
+                    <path d="M26 15V27L34 31" stroke="#38bdf8" stroke-width="1.7" stroke-linecap="round" opacity="0.55" />
+                </svg>
+            </div>
         </div>
-        <div class="badge-floating badge-floating-right">
+    }
+    else
+    {
+        <div class="mytask-badges-row">
             <MudChip T="string"
                      Color="@StatusBadgeColor"
                      Variant="Variant.Filled"
                      Size="Size.Large"
-                     Class="@StatusChipTopClass">
+                     Class="badge-chip-top badge-chip-status">
                 @StatusBadgeText
                 @if (UserTask?.IsCompletedByUser == true && !(UserTask?.IsConfirmedByAdmin ?? false))
                 {
                     <span class="dot-pulse"></span>
                 }
             </MudChip>
+            <MudChip T="string"
+                     Color="@RemainBadgeColor"
+                     Variant="Variant.Filled"
+                     Size="Size.Large"
+                     Class="badge-chip-top badge-chip-remain">
+                @RemainBadgeText
+            </MudChip>
         </div>
-    </div>
-
-    <MudCardContent>
-        <div class="mytask-header">
-            <div class="mytask-header-info">
-                <MudText Typo="Typo.h6" Class="mytask-title">
-                    <div class="mytask-title-scroll">@TaskTitle</div>
+        <MudCardContent>
+            <div class="mytask-card-center-content">
+                <MudText Typo="Typo.h6" Class="mytask-title-center">
+                    @TaskTitle
                 </MudText>
                 @if (!string.IsNullOrWhiteSpace(TaskDescription))
                 {
-                    <MudText Typo="Typo.body2" Class="mytask-desc">
-                        <div class="mytask-desc-scroll">@TaskDescription</div>
+                    <MudText Typo="Typo.body2" Class="mytask-desc-center">
+                        @TaskDescription
                     </MudText>
                 }
+                <div class="mytask-slider-container">
+                    <MudSlider T="int"
+                               Dir="Direction.LeftToRight"
+                               Min="0"
+                               Max="100"
+                               Step="5"
+                               Value="@Percent"
+                               Disabled="@(!CanEdit)"
+                               ValueChanged="@(v => OnPercentChanged(v))"
+                               Immediate="true"
+                               Color="Color.Primary"
+                               />
+                </div>
+                <div class="mytask-percent-center">@Percent %</div>
+                <MudButton Variant="Variant.Filled"
+                           Disabled="@(!CanSave)"
+                           OnClick="@SaveProgress"
+                           Color="Color.Primary"
+                           Class="mytask-save-btn-wide">
+                    ثبت
+                </MudButton>
             </div>
-        </div>
-        <div class="mytask-actions">
-            <MudSlider T="int"
-                       Dir="Direction.LeftToRight"
-                       Min="0"
-                       Max="100"
-                       Step="5"
-                       Value="@Percent"
-                       Disabled="@(!CanEdit)"
-                       ValueChanged="@(v => OnPercentChanged(v))"
-                       Immediate="true"
-                       Color="Color.Primary"
-                       Class="mytask-slider" />
-            <div class="mytask-percent">@Percent %</div>
-            <MudButton Variant="Variant.Filled"
-                       Disabled="@(!CanSave)"
-                       OnClick="@SaveProgress"
-                       Color="Color.Primary"
-                       Class="mytask-save-btn">
-                ثبت
-            </MudButton>
-        </div>
-    </MudCardContent>
+        </MudCardContent>
+    }
 </MudCard>

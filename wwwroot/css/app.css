@@ -38,7 +38,9 @@ html, body {
     box-sizing: border-box;
     /* جلوگیری از اسکرول افقی ناخواسته */
     overflow-x: hidden;
+    background: #181f2a !important;
 }
+
 
 
 // اگر لازم است reset بیشتری، می‌توانید اضافه کنید:
@@ -426,3 +428,9 @@ code {
     overflow-x: hidden;  نگه می‌داریم تا اسکرول افقی نباشد 
     overflow-y: auto !important;  اسکرول عمودی همیشه مجاز است 
 }*/
+html, body {
+    background: #181f2a !important;
+    min-height: 100vh;
+    margin: 0 !important;
+    padding: 0 !important;
+}

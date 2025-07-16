@@ -24,6 +24,7 @@
     min-height: 100vh;
     width: 100%; /* ← اصلاح‌شده: قبلاً 100vw بود */
     box-sizing: border-box;
+    background: #101e2c
 }
 
 .clock-side-modern {
@@ -49,6 +50,7 @@
     align-items: center;
     min-width: 340px;
     min-height: 540px;
+    background: #191e23;
 }
 
 /*********************************

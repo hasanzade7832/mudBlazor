@@ -3,8 +3,9 @@
 @using BlazorApp1.Components.Alert
 @inherits BlazorApp1.Pages.MyTasks.MyTasksBase
 
-<MudPaper Class="tasks-container-outer" Square="false" Elevation="0">
-    <MudText Typo="Typo.h4" Class="tasks-title mt-2 mb-2">تسک‌های من</MudText>
+
+<div class="main-tasks-center-wrapper">
+<MudPaper Class="tasks-container-outer-dark" Square="false" Elevation="0">
 
     @if (ShowAlert)
     {
@@ -14,26 +15,29 @@
                OnClose="() => ShowAlert = false" />
     }
 
-    <MudPaper Class="tasks-box mt-1" Square="false" Elevation="0">
-        @if (IsLoading)
-        {
-            <MudText Typo="Typo.subtitle1" Align="Align.Center" Class="loading-text">در حال دریافت تسک‌ها...</MudText>
-        }
-        else if (UserTasks.Count == 0)
-        {
-            <MudText Typo="Typo.subtitle1" Align="Align.Center" Class="no-tasks">هیچ تسکی برای شما ثبت نشده است.</MudText>
-        }
-        else
-        {
-            <MudStack Spacing="5" Class="tasks-card-list">
-                @foreach (var ut in UserTasks)
+    <MudPaper Class="tasks-box-dark mt-1" Square="false" Elevation="0">
+        <div class="tasks-grid-responsive">
+            @for (int i = 0; i < 6; i++)
+            {
+                if (i < UserTasks.Count)
                 {
-                    @if (ut != null && ut.TaskItem != null)
-                    {
-                        <MyTaskCard UserTask="ut" OnSaved="ReloadTasks" />
-                    }
+                    <MyTaskCard UserTask="UserTasks[i]" OnSaved="ReloadTasks" />
                 }
-            </MudStack>
+                else
+                {
+                    <MyTaskCard UserTask="null" OnSaved="ReloadTasks" />
+                }
+            }
+        </div>
+        @if (UserTasks.Count > 6)
+        {
+            <div class="tasks-grid-responsive extra-tasks">
+                @for (int i = 6; i < UserTasks.Count; i++)
+                {
+                    <MyTaskCard UserTask="UserTasks[i]" OnSaved="ReloadTasks" />
+                }
+            </div>
         }
     </MudPaper>
 </MudPaper>
+</div>
