@@ -7,12 +7,12 @@
 
 <MudAppBar Class="dark-appbar" Elevation="0">
 
-    <!-- لوگو -->
+    <!-- لوگو و نام اپ -->
     <MudText Typo="Typo.h6" Class="brand">
         Kargardoon
     </MudText>
 
-    <!-- منوی افقی -->
+    <!-- منوی افقی (در دسکتاپ) -->
     <MudHidden Breakpoint="Breakpoint.SmAndDown">
         <nav class="nav-center">
             @foreach (var item in MenuItems)
@@ -37,7 +37,6 @@
         <MudMenu Class="user-menu"
                  AnchorOrigin="Origin.BottomCenter"
                  TransformOrigin="Origin.TopCenter">
-
             <ActivatorContent>
                 <MudButton DisableRipple="true" Class="user-btn">
                     <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Class="account-icon" />
@@ -45,7 +44,6 @@
                     <MudIcon Icon="@Icons.Material.Filled.KeyboardArrowDown" />
                 </MudButton>
             </ActivatorContent>
-
             <ChildContent>
                 @if (IsAdminLocal)
                 {
@@ -66,20 +64,17 @@
         </MudMenu>
     </MudHidden>
 
-    <!-- منوی همبرگری (ریسپانسیو) -->
+    <!-- منوی همبرگری (در موبایل و تبلت) -->
     <MudHidden Breakpoint="Breakpoint.MdAndUp">
         <MudMenu Icon="@Icons.Material.Filled.Menu"
                  Dense="true"
                  Class="burger-menu">
-
             @foreach (var item in MenuItems)
             {
                 if (!item.Show) continue;
                 <MudMenuItem Href="@item.Href" Class="burger-item">@item.Text</MudMenuItem>
             }
-
             <MudDivider />
-
             @if (IsAdminLocal)
             {
                 <MudMenuItem OnClick="GoToAdminPanel" Class="burger-item profile-link">پنل ادمین</MudMenuItem>
@@ -88,7 +83,6 @@
             {
                 <MudMenuItem OnClick="GoToProfile" Class="burger-item profile-link">پروفایل کاربری</MudMenuItem>
             }
-
             <MudMenuItem OnClick="Logout" Class="burger-item exit">خروج</MudMenuItem>
         </MudMenu>
     </MudHidden>
@@ -96,15 +90,14 @@
 </MudAppBar>
 
 @code {
-    /* ---------- وضعیت کاربر ---------- */
+    // وضعیت کاربر
     private bool IsAdminLocal;
     private string UserNameLocal = "کاربر";
 
-    /* ---------- آیتم‌های منو ---------- */
+    // آیتم‌های منو
     private readonly record struct MenuItem(string Href, string Text, string Icon, bool Show = true);
 
-    private IEnumerable<MenuItem> MenuItems => new[]
-    {
+    private IEnumerable<MenuItem> MenuItems => new[] {
         new MenuItem("/Egg",        "تخم‌مرغ‌ها",    Icons.Material.Filled.BreakfastDining),
         new MenuItem("/Internet",   "هزینه اینترنت", Icons.Material.Filled.Public),
         new MenuItem("/PettyCash",  "تنخواه",        Icons.Material.Filled.CreditCard, IsAdminLocal),
@@ -114,14 +107,12 @@
         new MenuItem("/home",       "خانه",          Icons.Material.Filled.Home)
     };
 
-    /* ---------- چرخهٔ حیات ---------- */
     protected override async Task OnInitializedAsync()
     {
         NavManager.LocationChanged += async (_, __) => await LoadUser();
         await LoadUser();
     }
 
-    /* ---------- متدهای کمکی ---------- */
     private static string GetBtnClass(bool active) =>
         active ? "nav-btn active" : "nav-btn";
 
@@ -134,7 +125,6 @@
     private async Task LoadUser()
     {
         var json = await JS.InvokeAsync<string>("localStorage.getItem", "user");
-
         if (string.IsNullOrEmpty(json))
         {
             var rel = NavManager.ToBaseRelativePath(NavManager.Uri).Trim('/').ToLowerInvariant();
@@ -152,7 +142,6 @@
         StateHasChanged();
     }
 
-    /* ---------- عملیات ---------- */
     private void GoToProfile() => NavManager.NavigateTo("/profile");
     private void GoToAdminPanel() => NavManager.NavigateTo("/admin");
     private async Task Logout()
@@ -163,7 +152,6 @@
         NavManager.NavigateTo("/login");
     }
 
-    /* ---------- DTO ---------- */
     private sealed class LocalUser
     {
         public string? UserName { get; set; }

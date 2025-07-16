@@ -1,157 +1,142 @@
-﻿/* ------------ رنگ‌های تم ------------ */
-:root {
-    --navbar-bg: #212121;
-    --navbar-fg: #ffffff;
-    --accent: #0169cc;
-    --hover-bg: #2a2a2a;
-    --hover-fg: #ffffff;
-    --danger: #ff6b6b;
-    --border: #333333;
+﻿.dark-appbar {
+    background: #18191A !important; /* خیلی تیره، نزدیک به مشکی */
+    color: #fff !important;
+    min-height: 56px;
+    border-bottom: 1px solid #232428;
 }
 
-/* ------------ AppBar ------------ */
-.dark-appbar {
-    background: var(--navbar-bg) !important;
-    color: var(--navbar-fg) !important;
-    border-bottom: 1px solid var(--border);
-    padding-inline: 1rem;
-    margin-top:-10px
+.brand {
+    color: #2196F3 !important; /* لوگو و نام اپ آبی */
+    font-weight: bold;
+    padding-right: 1.2rem;
+    font-size: 1.3rem;
+    letter-spacing: 1px;
 }
 
-    /* لوگو / برند */
-    .dark-appbar .brand {
-        color: var(--accent);
-        font-weight: 700;
-        font-size: 1.4rem !important; /* بزرگ‌تر */
-        letter-spacing: .5px;
-        user-select: none;
-    }
-
-/* ------------ منوی افقی ------------ */
 .nav-center {
     display: flex;
-    gap: 1.2rem;
     align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
 }
 
 .nav-btn {
     background: transparent !important;
-    color: var(--navbar-fg) !important;
-    font-weight: 600 !important;
-    font-size: 1.05rem !important;
+    color: #fff !important;
+    font-weight: 500;
     border-radius: 6px;
-    padding: .55rem 1.3rem !important;
-    min-height: auto !important;
-    transition: background .2s ease, color .2s ease;
+    margin: 0 0.13rem;
+    padding: 0.38rem 1.15rem 0.38rem 0.9rem;
+    font-size: 1.06rem;
+    min-width: 0;
+    box-shadow: none !important;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
 }
 
-    .nav-btn:hover,
-    .nav-btn.active {
-        background: var(--hover-bg) !important;
-        color: var(--hover-fg) !important;
+    .nav-btn .mud-icon-root {
+        color: #fff !important;
+        margin-left: 0.5rem;
+        font-size: 1.15em;
     }
 
-        .nav-btn.active::after {
-            content: "";
-            display: block;
-            height: 2px;
-            background: var(--accent);
-            margin-top: 2px;
-            border-radius: 1px;
+    .nav-btn.active {
+        background: #23272B !important; /* خاکستری‌تر برای آیتم فعال */
+        color: #fff !important;
+        font-weight: 600;
+        box-shadow: none;
+    }
+
+.user-menu {
+    margin-left: 0.3rem;
+}
+
+.user-btn {
+    background: transparent !important;
+    color: #2196F3 !important; /* نام کاربری آبی */
+    border-radius: 7px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    padding: 0.38rem 0.9rem 0.38rem 0.4rem;
+    display: flex;
+    align-items: center;
+}
+
+    .user-btn .account-icon {
+        color: #2196F3 !important;
+        font-size: 1.7rem;
+        margin-left: 0.42rem;
+        margin-right: 0.16rem;
+    }
+
+.username {
+    color: #2196F3 !important;
+    margin-left: 0.45rem;
+    font-weight: 700;
+}
+
+.user-menu-item, .burger-item {
+    background: transparent !important;
+    color: #fff !important;
+    font-weight: 500;
+    font-size: 1.05rem;
+    padding: 0.72rem 1.25rem;
+    border-radius: 6px;
+    transition: background 0.13s;
+}
+
+    .user-menu-item.exit, .burger-item.exit {
+        color: #f44336 !important;
+    }
+
+    .user-menu-item.profile-link, .burger-item.profile-link {
+        color: #2196F3 !important;
+    }
+
+    .user-menu-item:hover, .burger-item:hover {
+        background: #23272B !important;
+        color: #fff !important;
+    }
+
+.burger-menu {
+    color: #fff !important;
+}
+
+    .burger-menu .mud-icon-root {
+        color: #fff !important;
+    }
+
+@media (max-width: 899px) {
+    .nav-center {
+        display: none !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .brand {
+        font-size: 1rem !important;
+        padding-right: 0.5rem;
+    }
+
+    .user-btn {
+        font-size: 0.95rem;
+        padding: 0.28rem 0.7rem 0.28rem 0.2rem;
+    }
+
+        .user-btn .account-icon {
+            font-size: 1.3rem;
         }
 
-/* ------------ دکمه/منوی کاربری ------------ */
-.user-btn {
-    display: inline-flex !important; /* برای پشتیبانی gap */
-    align-items: center;
-    gap: 1.2rem !important; /* فاصلهٔ بیش‌تر */
-    background: transparent !important;
-    color: var(--navbar-fg) !important;
-    font-weight: 500;
-    padding: .3rem .7rem !important;
-    border-radius: 6px;
-    transition: background .2s ease, color .2s ease;
-}
-
-    .user-btn:hover {
-        background: var(--hover-bg) !important;
-        color: var(--hover-fg) !important;
+    .nav-btn {
+        font-size: 0.99rem;
+        padding: 0.28rem 0.7rem 0.28rem 0.6rem;
     }
 
-/* آیکون ادمک */
-.account-icon {
-    color: var(--accent) !important;
-    font-size: 1.6rem !important; /* بزرگ‌تر */
-    margin-inline-end: .3rem !important; /* فاصله از متن */
-}
-
-/* نام کاربر */
-.username {
-    max-width: 10rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* ------------ پاپ‌اُوِر و آیتم‌ها ------------ */
-.mud-popover,
-.mud-menu {
-    background: var(--navbar-bg) !important;
-    color: var(--navbar-fg) !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,.6) !important;
-}
-
-/* آیتم‌های منوی کاربری و همبرگری */
-.user-menu-item,
-.profile-link,
-.burger-item,
-.user-menu-item *,
-.profile-link *,
-.burger-item * {
-    color: var(--navbar-fg) !important; /* سفید قطعی */
-}
-
-.user-menu-item,
-.profile-link,
-.burger-item {
-    font-weight: 500 !important;
-    font-size: .95rem !important;
-    padding-inline: 1.2rem !important;
-    justify-content: center !important;
-    text-align: center !important;
-    display: flex !important;
-    transition: background .2s ease, color .2s ease;
-}
-
-    .user-menu-item:hover,
-    .profile-link:hover,
-    .burger-item:hover {
-        background: var(--hover-bg) !important;
-        color: var(--hover-fg) !important;
-    }
-
-.exit,
-.exit > * {
-    color: var(--danger) !important;
-}
-
-/* ------------ آیکُن‌ها ------------ */
-.mud-icon-root {
-    font-size: 1.1rem;
-}
-
-.dark-appbar .mud-icon-root {
-    color: inherit;
-}
-
-/* آیکون منوی همبرگری آبی شود */
-.burger-menu .mud-icon-root {
-    color: var(--accent) !important;
-}
-
-/* ------------ ریسپانسیو ------------ */
-@media (max-width: 599.98px) {
-    .nav-center {
-        display: none;
+    .user-menu-item, .burger-item {
+        font-size: 0.97rem;
+        padding: 0.62rem 0.9rem;
     }
 }
