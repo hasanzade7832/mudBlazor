@@ -1,66 +1,96 @@
-﻿.tasklog-form {
-    background: #f9fafb !important;
-    border-radius: 14px !important;
-    box-shadow: 0 1.5px 10px #6366f110;
-    margin-bottom: 2rem;
-    padding: 1.2rem 1.1rem !important;
+﻿/* --------------- تم کلی ---------------- */
+body, .mud-container, .mud-paper {
+    background: #181b23 !important;
+    color: #fff !important;
 }
 
-.mud-table {
-    font-size: 0.99rem !important;
+/* --------------- تیتر ------------------ */
+.page-title {
+    color: #2196f3 !important;
+    font-size: 2rem !important;
+    font-weight: 700;
+    margin-top: 100px;
 }
 
-    .mud-table th, .mud-table td {
-        text-align: right !important;
+/* --------------- فرم شیشه‌ای ----------- */
+.tasklog-form-glass {
+    background: #1a1e2d !important;
+    border-radius: 16px !important;
+    border: 1px solid #27304d !important;
+    box-shadow: 0 3px 24px #2196f322;
+    padding: 1.5rem 1.3rem;
+    margin-bottom: 2.4rem;
+}
+
+/* --------------- لیبل اینپوت ------------ */
+.input-label {
+    font-size: 1.12rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.4rem;
+}
+
+/* --------------- اینپوت دارک ------------ */
+.modern-input {
+    background: #0f111b !important;
+    border: 1px solid #2f354d !important;
+    border-radius: 8px !important;
+    font-size: 1.07rem !important;
+    min-height: 44px !important;
+    color: #fff !important;
+    caret-color: #fff !important;
+}
+
+    .modern-input input {
+        color: #fff !important;
     }
 
-.p-4 {
-    padding: 1.1rem !important;
+        .modern-input input::placeholder {
+            color: #90caf9 !important;
+            opacity: 0.9;
+        }
+
+/* --------------- دکمهٔ افزودن ----------- */
+.btn-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.mb-8 {
-    margin-bottom: 2rem !important;
+.add-btn {
+    height: 44px;
+    background: #2196f3 !important;
+    color: #fff !important;
+    font-weight: 700;
+    border-radius: 9px !important;
+    padding: 0 26px;
+    box-shadow: 0 2px 14px #2196f355;
+    width: auto; /* در حالت دسکتاپ به صورت خودکار تعیین می‌شود */
+    margin-top:35px
 }
 
-.py-12 {
-    padding-top: 3.5rem !important;
-    padding-bottom: 3.5rem !important;
+/* --------------- استایل جدول ------------ */
+.activities-wrap {
+    margin-top: 1.8rem;
 }
 
-.tasklog-form .mud-input-root {
-    background: #fff !important;
-    border-radius: 10px !important;
-}
-
-.tasklog-form .mud-button {
-    min-width: 80px;
-}
-
-.w-100 {
-    width: 100% !important;
-}
-
-.px-0 {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-}
-
-.py-1 {
-    padding-top: 0.2rem !important;
-    padding-bottom: 0.2rem !important;
-}
-
-.rounded-3 {
-    border-radius: 0.9rem !important;
-}
-
+/* --------------- ریسپانسیو موبایل (<600px) -------------- */
 @media (max-width: 600px) {
-    .tasklog-form {
-        padding: 0.5rem 0.3rem !important;
+    .tasklog-form-glass {
+        padding: 1rem !important;
     }
 
-    .py-12 {
-        padding-top: 1.7rem !important;
-        padding-bottom: 1.7rem !important;
+    .page-title {
+        font-size: 1.6rem !important;
+        margin-top: 60px !important;
+    }
+
+    .input-label {
+        font-size: 1rem;
+    }
+
+    .add-btn {
+        width: 100% !important; /* دکمه در موبایل عرض کامل بگیرد */
+        margin-top: 0.5rem; /* فاصله از فیلد بالایی */
     }
 }

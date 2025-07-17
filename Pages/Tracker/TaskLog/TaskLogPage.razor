@@ -1,47 +1,47 @@
 ﻿@page "/TaskLog"
 @using BlazorApp1.Models
 @using MudBlazor
-@using BlazorApp1.Components.TrackerWidgets
 
 @inherits TaskLogPageBase
 
 <link href="css/TaskLog/TaskLogPage.css" rel="stylesheet" />
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="py-12">
-    <MudText Typo="Typo.h4" Align="Align.Center" Color="Color.Primary" Class="mb-8">
+    <MudText Typo="Typo.h4" Align="Align.Center" Class="mb-8 page-title">
         لیست فعالیت‌ها
     </MudText>
 
-    <!-- فرم افزودن فعالیت -->
-    <MudPaper Class="p-4 mb-8 tasklog-form">
-        <MudGrid GutterSpacing="3" AlignItems="AlignItems.Center">
+    <MudPaper Class="tasklog-form-glass">
+        <MudGrid GutterSpacing="3" AlignItems="AlignItems.Center" Breakpoint="Breakpoint.Sm">
             <MudItem xs="12" md="6">
+                <div class="input-label">عنوان فعالیت</div>
                 <MudTextField T="string"
                               @bind-Value="newTitle"
-                              Label="عنوان فعالیت"
-                              Variant="Variant.Outlined"
                               FullWidth="true"
-                              InputClass="text-end"
+                              Variant="Variant.Outlined"
+                              Class="modern-input"
                               Immediate="true"
                               Error="@showTitleError"
                               ErrorText="عنوان الزامی است" />
             </MudItem>
-            <MudItem xs="6" md="3">
+
+            <MudItem xs="12" md="3">
+                <div class="input-label">مدت زمان</div>
                 <MudTextField T="string"
                               @bind-Value="newTime"
                               Placeholder="00:00:00"
-                              Variant="Variant.Outlined"
-                              Label="مدت زمان"
                               FullWidth="true"
-                              InputClass="text-center" />
+                              Variant="Variant.Outlined"
+                              Class="modern-input" />
             </MudItem>
-            <MudItem xs="6" md="3" Class="d-flex align-items-center">
+
+            <MudItem xs="12" md="3" Class="btn-wrapper">
                 <MudButton Color="Color.Primary"
-                           Variant="Variant.Outlined"
+                           Variant="Variant.Filled"
                            StartIcon="@Icons.Material.Filled.Add"
                            OnClick="AddActivity"
-                           Size="Size.Small"
-                           Class="w-100 px-0 py-1 rounded-3">
+                           Size="Size.Medium"
+                           Class="add-btn">
                     افزودن
                 </MudButton>
             </MudItem>
@@ -50,60 +50,12 @@
 
     @if (loading)
     {
-        <MudProgressCircular Indeterminate="true"
-                             Color="Color.Primary"
-                             Class="d-block mx-auto my-10" />
+        <MudProgressCircular Indeterminate="true" Color="Color.Primary" Class="d-block mx-auto my-10" />
     }
     else
     {
-        <MudPaper Elevation="1">
-            <ActivityTable Items="activities"
-                           OnEdit="OpenEditModal"
-                           OnDelete="OpenDelete"
-                           OnDetails="NavigateToDetails"
-                           ShowDetailsIcon="true" />
-        </MudPaper>
+        <div class="activities-wrap">
+            <DynamicTable Items="activities" Columns="ActivityColumns" />
+        </div>
     }
 </MudContainer>
-
-<!-- دیالوگ ویرایش فعالیت -->
-<MudDialog @bind-Visible="editOpen" MaxWidth="MaxWidth.Small">
-    <DialogContent>
-        <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-4">ویرایش فعالیت</MudText>
-        <MudTextField T="string"
-                      @bind-Value="editTitle"
-                      Label="عنوان جدید"
-                      Variant="Variant.Outlined"
-                      Immediate="true"
-                      Error="@editShowTitleError"
-                      ErrorText="عنوان الزامی است" />
-        <MudTextField T="string"
-                      @bind-Value="editTime"
-                      Placeholder="00:00:00"
-                      Variant="Variant.Outlined"
-                      Label="مدت زمان"
-                      Immediate="true"
-                      InputClass="text-center" />
-    </DialogContent>
-    <DialogActions>
-        <MudButton Color="Color.Default"
-                   Variant="Variant.Text"
-                   Size="Size.Small"
-                   OnClick="() => editOpen = false">
-            لغو
-        </MudButton>
-        <MudButton Color="Color.Primary"
-                   Variant="Variant.Filled"
-                   Size="Size.Small"
-                   OnClick="SaveEdit">
-            ذخیره
-        </MudButton>
-    </DialogActions>
-</MudDialog>
-
-<!-- دیالوگ حذف -->
-<ConfirmDialog @bind-Open="deleteOpen"
-               Message="آیا مطمئن هستید که این فعالیت حذف شود؟"
-               ConfirmText="حذف"
-               ConfirmColor="Color.Error"
-               OnConfirm="DeleteActivity" />

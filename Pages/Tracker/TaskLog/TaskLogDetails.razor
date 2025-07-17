@@ -2,118 +2,114 @@
 
 @using BlazorApp1.Models
 @using MudBlazor
-@using BlazorApp1.Components.TrackerWidgets
-
+@using BlazorApp1.Components.DynamicTable
 @inherits TaskLogDetailsBase
 
 <link href="css/TaskLog/TaskLogDetails.css" rel="stylesheet" />
 
-<MudContainer MaxWidth="MaxWidth.Medium" Class="py-10">
+<!-- ─────────────ــ بدنه صفحه ــ───────────── -->
+<MudContainer MaxWidth="MaxWidth.Medium"
+              Class="details-container py-10">
+
+    @* ───── در صورت نبود Activity انتخاب‌شده ───── *@
     @if (ActivityState.SelectedActivity is null)
     {
-        <MudText Typo="Typo.h6" Color="Color.Error">فعّالیّتی یافت نشد!</MudText>
-        <MudButton Color="Color.Primary" OnClick="GoBack" Class="mt-4">بازگشت</MudButton>
+        <MudText Typo="Typo.h6" Color="Color.Error" Align="Align.Center" Class="mb-6">
+            فعّالیّتی یافت نشد!
+        </MudText>
+
+        <div class="center-flex">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.ArrowBack"
+                       OnClick="GoBack">
+                بازگشت
+            </MudButton>
+        </div>
     }
     else
     {
-        <!-- هدر -->
-        <MudGrid AlignItems="AlignItems.Center" Class="mb-8" Spacing="3">
-            <MudItem xs="4">
-                <MudButton Color="Color.Error"
-                           Variant="Variant.Outlined"
-                           OnClick="GoBack"
-                           StartIcon="@Icons.Material.Filled.ArrowBack"
-                           Size="Size.Small">
-                    بازگشت
-                </MudButton>
+        @* ───── هِدر ───── *@
+        <MudGrid AlignItems="Center" Class="details-header" Spacing="2">
+
+            <!-- Back -->
+            <MudItem xs="4" Class="center-flex">
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
+                               Color="Color.Error"
+                               Size="Size.Medium"
+                               OnClick="GoBack" />
             </MudItem>
+
+            <!-- Total time -->
             <MudItem xs="4" Class="d-flex flex-column align-center">
-                <MudText Typo="Typo.subtitle2" Class="font-bold mb-1">زمان صرف‌شده</MudText>
-                <MudChip T="string"
-                         Color="Color.Primary"
-                         Variant="Variant.Filled"
-                         Class="font-bold"
-                         Style="font-size:1.1rem; padding:4px 12px;">
+                <MudText Typo="Typo.subtitle2" Class="header-label">زمان صرف‌شده</MudText>
+                <MudChip T="string" Color="Color.Primary"
+                         Variant="Variant.Filled" Class="header-chip">
                     @FormatTime(ActivityState.SelectedActivity.TotalSeconds)
                 </MudChip>
             </MudItem>
+
+            <!-- Title -->
             <MudItem xs="4" Class="d-flex justify-end">
-                <MudText Typo="Typo.h6" Align="Align.Right" Class="font-bold">
+                <MudText Typo="Typo.h6" Align="Align.Right" Class="activity-title">
                     @ActivityState.SelectedActivity.Title
                 </MudText>
             </MudItem>
         </MudGrid>
 
-        <!-- فرم ثبت/ادامه رکورد جدید -->
-        <MudPaper Class="p-4 mb-8 tasklogdetails-form" Elevation="2">
-            <MudGrid GutterSpacing="3" AlignItems="AlignItems.Center">
-                <!-- دکمه شروع/توقف -->
-                <MudItem xs="12" md="3" Class="d-flex align-center justify-center">
+        @* ───── فرم رکورد جدید ───── *@
+        <MudPaper Class="tasklogdetails-form-glass mb-8" Elevation="0">
+            <MudGrid GutterSpacing="3"
+                     AlignItems="Center"
+                     Class="form-grid"
+                     Breakpoint="Breakpoint.Sm">
+
+                <!-- Start | Stop -->
+                <MudItem xs="12" md="3" Class="btn-wrapper">
                     <MudButton Color="@(_isRunning ? Color.Error : Color.Success)"
                                Variant="Variant.Filled"
                                OnClick="ToggleTimer"
-                               Size="Size.Medium">
+                               Class="action-btn start-stop-btn">
                         @(_isRunning ? "توقف" : "شروع")
                     </MudButton>
                 </MudItem>
-                <!-- نمایش تایمر -->
-                <MudItem xs="12" md="2" Class="d-flex align-center justify-center">
-                    <MudText Typo="Typo.h5" Class="font-mono font-bold">
-                        @FormatTime(_seconds)
-                    </MudText>
+
+                <!-- Timer -->
+                <MudItem xs="12" md="2" Class="timer-wrapper">
+                    <MudPaper Class="timer-box" Elevation="0">
+                        <MudText Typo="Typo.h5" Class="timer-text">
+                            @FormatTime(_seconds)
+                        </MudText>
+                    </MudPaper>
                 </MudItem>
-                <!-- عنوان رکورد -->
-                <MudItem xs="12" md="4" Class="d-flex align-center justify-center">
+
+                <!-- Record title -->
+                <MudItem xs="12" md="4" Class="center-flex">
                     <MudTextField T="string"
                                   Label="عنوان رکورد"
+                                  @bind-Value="_recordTitle"
                                   Variant="Variant.Outlined"
                                   FullWidth="true"
-                                  @bind-Value="_recordTitle" />
+                                  Class="modern-input" />
                 </MudItem>
-                <!-- دکمه ذخیره -->
-                <MudItem xs="12" md="3" Class="d-flex align-center justify-center">
+
+                <!-- Save -->
+                <MudItem xs="12" md="3" Class="btn-wrapper">
                     <MudButton Color="Color.Primary"
                                Variant="Variant.Filled"
-                               OnClick="SaveRecord"
                                Disabled="_isRunning"
-                               Size="Size.Medium">
+                               OnClick="SaveRecord"
+                               Class="action-btn save-btn">
                         ذخیره
                     </MudButton>
                 </MudItem>
+
             </MudGrid>
         </MudPaper>
 
-        <!-- جدول رکوردها -->
-        <ActivityTable Items="_records"
-                       OnEdit="HandleEdit"
-                       OnDelete="DeleteRecord"
-                       ShowDetailsIcon="false" />
+        @* ───── جدول رکوردها ───── *@
+        <div class="records-wrap">
+            <DynamicTable Items="_records" Columns="RecordColumns" />
+        </div>
     }
-
-    <!-- مودال ویرایش رکورد -->
-    <MudDialog @bind-Visible="_isEditDialogOpen" MaxWidth="MaxWidth.Small">
-        <DialogContent>
-            <MudStack Spacing="2">
-                <MudText Typo="Typo.h6" Color="Color.Primary">ویرایش رکورد</MudText>
-                <MudTextField T="string"
-                              Label="عنوان رکورد"
-                              Variant="Variant.Outlined"
-                              Immediate="true"
-                              FullWidth="true"
-                              @bind-Value="_editDialogTitle" />
-                <MudTextField T="string"
-                              Label="مدت زمان (hh:mm:ss)"
-                              Variant="Variant.Outlined"
-                              Immediate="true"
-                              Placeholder="00:00:00"
-                              @bind-Value="_editDialogDuration" />
-            </MudStack>
-        </DialogContent>
-        <DialogActions>
-            <MudButton Color="Color.Primary" OnClick="SaveEditDialog">تأیید</MudButton>
-            <MudButton Color="Color.Secondary" OnClick="() => _isEditDialogOpen = false">
-                انصراف
-            </MudButton>
-        </DialogActions>
-    </MudDialog>
 </MudContainer>

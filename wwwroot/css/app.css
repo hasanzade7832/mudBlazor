@@ -38,7 +38,7 @@ html, body {
     box-sizing: border-box;
     /* جلوگیری از اسکرول افقی ناخواسته */
     overflow-x: hidden;
-    background: #181f2a !important;
+/*    background: #181f2a !important;*/
 }
 
 

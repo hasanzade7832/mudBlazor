@@ -1,88 +1,181 @@
-﻿.tasklogdetails-form {
-    background: #f8fafc !important;
-    border-radius: 15px !important;
-    box-shadow: 0 2px 10px #a5b4fc22;
-    margin-bottom: 2rem;
-    padding: 1.1rem 1rem !important;
+﻿/* ───────── افست کلی صفحه ───────── */
+.details-container {
+    margin-top: 80px;
 }
 
-.mb-8 {
-    margin-bottom: 2rem !important;
+/* ───────── تم تیره واحد ───────── */
+body,
+.mud-container,
+.mud-paper {
+    background: #181b23 !important;
+    color: #fff !important;
 }
 
-.py-10 {
-    padding-top: 2.8rem !important;
-    padding-bottom: 2.8rem !important;
+/* ───────── هِدر ───────── */
+.details-header {
+    margin-bottom: 2.2rem;
 }
 
-.mud-chip.font-bold {
+.header-label {
+    color: #90caf9;
     font-weight: 600;
-    letter-spacing: 0.01em;
+    margin-bottom: 4px;
 }
 
-.mud-table {
-    font-size: 0.99rem !important;
+.header-chip {
+    font-weight: 700;
+    font-size: 1.05rem;
+    padding: 3px 12px !important;
 }
 
-.font-mono {
+.activity-title {
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+/* ───────── کارت شیشه‌ای فرم ───────── */
+.tasklogdetails-form-glass {
+    background: #1a1e2d !important;
+    border: 1px solid #27304d !important;
+    border-radius: 16px !important;
+    box-shadow: 0 3px 24px #2196f322;
+    padding: 1.4rem 1.2rem !important;
+}
+
+/* شبکه داخل فرم—آیتم‌ها دقیقاً وسط عمودی */
+.form-grid .mud-item {
+    display: flex;
+    justify-content: center; /* وسط عمودی */
+    align-items: center;
+}
+
+/* ───────── اینپوت تاریک ───────── */
+.modern-input {
+    background: #0f111b !important;
+    border: 1px solid #2f354d !important;
+    border-radius: 8px !important;
+    font-size: 1.06rem !important;
+    min-height: 44px !important;
+    color: #fff !important;
+}
+
+    .modern-input input {
+        color: #fff !important;
+    }
+
+    .modern-input label {
+        color: #90caf9 !important;
+    }
+    /* رنگ لیبل داخل فیلد */
+    .modern-input input::placeholder {
+        color: #90caf9 !important;
+        opacity: 0.9;
+    }
+
+/* ───────── دکمه‌ها ───────── */
+.btn-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.action-btn {
+    height: 44px;
+    min-width: 130px;
+    font-weight: 700;
+    border-radius: 9px !important;
+    padding: 0 26px;
+    box-shadow: 0 2px 14px #2196f355;
+}
+
+.save-btn {
+    background: #2196f3 !important;
+    color: #fff !important;
+/*    margin-left:-80px;
+    margin-top:3px*/
+}
+
+/* ───────── تایمر ───────── */
+.timer-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items:center;
+    margin-top:3px
+}
+
+.timer-box {
+    height: 44px; /* هم‌ارتفاع با دکمه‌ها */
+    min-width: 140px;
+    padding: 0 18px;
+    border-radius: 10px;
+    background: #0f111b;
+    border: 1px solid #2f354d;
+    box-shadow: 0 2px 16px #2196f322;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.timer-text {
     font-family: 'Fira Mono', monospace !important;
-}
-
-.font-bold {
-    font-weight: 600 !important;
-}
-
-@media (max-width: 600px) {
-    .tasklogdetails-form {
-        padding: 0.5rem 0.35rem !important;
-    }
-
-    .py-10 {
-        padding-top: 1.2rem !important;
-        padding-bottom: 1.2rem !important;
-    }
-}
-.tasklogdetails-form {
-    background: #f8fafc !important;
-    border-radius: 15px !important;
-    box-shadow: 0 2px 10px #a5b4fc22;
-    margin-bottom: 2rem;
-    padding: 1.1rem 1rem !important;
-}
-
-.mb-8 {
-    margin-bottom: 2rem !important;
-}
-
-.py-10 {
-    padding-top: 2.8rem !important;
-    padding-bottom: 2.8rem !important;
-}
-
-.mud-chip.font-bold {
     font-weight: 600;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.03em;
 }
 
-.mud-table {
-    font-size: 0.99rem !important;
+/* ───────── جدول رکوردها ───────── */
+.records-wrap {
+    margin-top: 1.6rem;
 }
 
-.font-mono {
-    font-family: 'Fira Mono', monospace !important;
+.dynamic-table-wrapper .glass-table-no-bg {
+    background: transparent !important;
+    color: #fff !important;
 }
 
-.font-bold {
-    font-weight: 600 !important;
+.header-cell-large,
+.header-cell-small {
+    background: #1a1e2d !important;
+    color: #90caf9 !important;
+    font-weight: 600;
 }
 
+.body-cell-large,
+.body-cell-small {
+    background: transparent !important;
+}
+
+/* ───────── آیکن‌های عملیات ───────── */
+.actions-wrap {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ───────── ریسپانسیو موبایل ───────── */
 @media (max-width: 600px) {
-    .tasklogdetails-form {
-        padding: 0.5rem 0.35rem !important;
+    .tasklogdetails-form-glass {
+        padding: 1rem 0.8rem !important;
     }
 
-    .py-10 {
-        padding-top: 1.2rem !important;
-        padding-bottom: 1.2rem !important;
+    .header-chip {
+        font-size: 0.95rem;
     }
+
+    .action-btn {
+        width: 100% !important;
+        margin-top: 0.5rem;
+    }
+
+    .timer-box {
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+}
+
+/* ───────── کمک‌کلاس عمومی ───────── */
+.center-flex {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

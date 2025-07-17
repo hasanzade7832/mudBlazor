@@ -3,32 +3,32 @@
 
 <MudDialog Class="custom-dialog">
 
+    <!-- تیتر -->
     <TitleContent>
         <h4 class="dialog-title">@Title</h4>
     </TitleContent>
 
+    <!-- بدنه -->
     <DialogContent>
         <div class="dialog-body">
             @ChildContent
         </div>
     </DialogContent>
 
+    <!-- دکمه‌ها -->
     <DialogActions>
         <div class="dialog-buttons">
             @if (ShowCancelButton)
             {
-                <MudButton Class="modal-btn cancel-btn"
-                           OnClick="Cancel">
+                <MudButton Class="modal-btn cancel-btn" OnClick="Cancel">
                     @CancelText
                 </MudButton>
             }
 
-            <MudButton Class="modal-btn ok-btn"
-                       Disabled="@_isLoading"
-                       OnClick="Submit">
+            <MudButton Class="modal-btn ok-btn" Disabled="@_isLoading" OnClick="Submit">
                 @if (_isLoading)
                 {
-                    <MudProgressCircular Class="loading-spinner" />
+                    <MudProgressCircular Class="loading-spinner" Size="Size.Small" />
                 }
                 else
                 {
@@ -37,6 +37,7 @@
             </MudButton>
         </div>
     </DialogActions>
+
 </MudDialog>
 
 @code {
@@ -59,7 +60,6 @@
 
         if (OnOk.HasDelegate)
             await OnOk.InvokeAsync();
-
         MudDialog.Close(DialogResult.Ok(true));
     }
 
@@ -67,7 +67,6 @@
     {
         if (OnCancel.HasDelegate)
             await OnCancel.InvokeAsync();
-
         MudDialog.Cancel();
     }
 }
