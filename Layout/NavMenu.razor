@@ -98,13 +98,13 @@
     private readonly record struct MenuItem(string Href, string Text, string Icon, bool Show = true);
 
     private IEnumerable<MenuItem> MenuItems => new[] {
-        new MenuItem("/Egg",        "تخم‌مرغ‌ها",    Icons.Material.Filled.BreakfastDining),
-        new MenuItem("/Internet",   "هزینه اینترنت", Icons.Material.Filled.Public),
+        // new MenuItem("/Egg",        "تخم‌مرغ‌ها",    Icons.Material.Filled.BreakfastDining),
+        // new MenuItem("/Internet",   "هزینه اینترنت", Icons.Material.Filled.Public),
         new MenuItem("/PettyCash",  "تنخواه",        Icons.Material.Filled.CreditCard, IsAdminLocal),
         new MenuItem("/TaskLog",    "تایم‌ترکر",     Icons.Material.Filled.AccessTime),
         new MenuItem("/MyTasks",    "تسک‌های من",    Icons.Material.Filled.ListAlt),
         new MenuItem("/Attendance", "حضور",          Icons.Material.Filled.Schedule),
-        new MenuItem("/home",       "خانه",          Icons.Material.Filled.Home)
+        // new MenuItem("/home",       "خانه",          Icons.Material.Filled.Home)
     };
 
     protected override async Task OnInitializedAsync()

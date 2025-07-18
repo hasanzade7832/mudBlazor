@@ -1,4 +1,30 @@
-﻿.main-content-area {
+﻿/* ───────── لایه و سایدبار ───────── */
+.pettycash-layout-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 32px 16px;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.pettycash-sidebar-container {
+    width: 260px;
+    flex-shrink: 0;
+}
+
+/* دکمهٔ موبایلی نمایش سایدبار */
+.sidebar-toggle-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+    border-radius: 50%;
+    display: none; /* ← در دسکتاپ مخفی است */
+}
+
+.main-content-area {
     max-width: 980px;
     width: 100%;
     padding: 40px 16px 0 16px;
@@ -8,6 +34,7 @@
     margin: 0 auto;
 }
 
+/* ───────── کارت‌های آمار ───────── */
 .cards-row {
     display: flex;
     flex-direction: row;
@@ -15,7 +42,6 @@
     gap: 2rem;
     justify-content: center;
     margin-bottom: 20px;
-    margin-top: 0;
 }
 
 .pettycash-card {
@@ -29,10 +55,11 @@
     flex-direction: column;
     align-items: center;
     position: relative;
-    transition: box-shadow 0.18s, transform 0.18s;
+    transition: box-shadow .18s, transform .18s;
     font-size: 1rem;
 }
 
+/* گرادینت‌های تم تیره ـ آبی */
 .bg-indigo {
     background: linear-gradient(135deg,#6366f1 0%,#4338ca 100%);
     color: #fff;
@@ -56,16 +83,15 @@
 .pettycash-card-title {
     font-size: 1.02rem;
     font-weight: 500;
-    margin-bottom: 0.5rem;
+    margin-bottom: .5rem;
     text-align: center;
 }
 
 .pettycash-card-value {
-    margin: 0.5rem 0 0 0;
+    margin-top: .5rem;
     font-size: 1.5rem;
     font-weight: bold;
     text-align: center;
-    letter-spacing: 0.5px;
 }
 
 .edit-btn {
@@ -75,6 +101,7 @@
     color: #fff;
 }
 
+/* ───────── ورودی و دکمه‌ها ───────── */
 .pettycash-input {
     background: #fff !important;
     color: #232323 !important;
@@ -83,7 +110,7 @@
 
 .pettycash-btn-group {
     display: flex;
-    gap: 0.7rem;
+    gap: .7rem;
     justify-content: center;
 }
 
@@ -115,6 +142,7 @@
     color: #fff !important;
 }
 
+/* ───────── هزینه‌های جاری ───────── */
 .pettycash-expenses-row {
     display: flex;
     flex-wrap: wrap;
@@ -152,20 +180,19 @@
     margin-top: 18px;
 }
 
-.expense-edit-btn,
-.expense-delete-btn {
+.expense-edit-btn, .expense-delete-btn {
     border-radius: 50%;
 }
 
 .no-expense-label {
     color: #76839b;
     font-size: 1.1rem;
-    padding: 60px 0 0 0;
+    padding-top: 60px;
     text-align: center;
     width: 100%;
-    grid-column: 1 / -1;
 }
 
+/* ───────── فرم تنخواه ───────── */
 .pettycash-modal-title {
     font-size: 1.28rem;
     font-weight: bold;
@@ -218,8 +245,7 @@
     padding: 8px 28px;
     font-size: 1.02rem;
     font-weight: 600;
-    cursor: pointer;
-    transition: background 0.16s;
+    transition: background .16s;
 }
 
     .ok-btn:hover {
@@ -234,8 +260,7 @@
     padding: 8px 30px;
     font-size: 1.01rem;
     font-weight: 500;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
+    transition: background .15s,color .15s;
 }
 
     .cancel-btn:hover {
@@ -243,20 +268,29 @@
         color: #4b5563;
     }
 
-/* ریسپانسیو */
-@media (max-width: 1100px) {
-    .cards-row,
-    .pettycash-expenses-row {
+/* ───────── ریسپانسیو ───────── */
+@media (max-width:1100px) {
+    .cards-row, .pettycash-expenses-row {
         flex-direction: column;
         align-items: center;
     }
+}
 
+@media (max-width:900px) {
+    .pettycash-sidebar-container {
+        display: none;
+    }
+    /* ← سایدبار مخفی در موبایل */
+    .sidebar-toggle-btn {
+        display: block;
+    }
+    /* ← دکمهٔ موبایلی ظاهر می‌شود */
     .main-content-area {
-        margin: 0 auto;
+        padding: 15px;
     }
 }
 
-@media (max-width: 700px) {
+@media (max-width:700px) {
     .main-content-area {
         padding: 15px 0 0 0;
     }
@@ -267,58 +301,4 @@
     }
 }
 
-
-.pettycash-layout-container {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 32px 16px;
-    gap: 24px;
-    flex-wrap: wrap;
-}
-
-.pettycash-sidebar-container {
-    width: 260px;
-    flex-shrink: 0;
-}
-
-.main-content-area {
-    max-width: 980px;
-    width: 100%;
-    padding-top: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-inline: auto;
-}
-
-
-@media (max-width: 900px) {
-    .pettycash-layout-container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .pettycash-sidebar-container {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-    }
-
-    .main-content-area {
-        padding: 15px;
-        margin: 0 auto;
-    }
-}
-
-
-.pettycash-expense-actions {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-    margin-top: 16px;
-}
-
-
+/* ───── (استایل‌های Dark/Body که نباید استفاده شود، عمداً حذف شده‌اند) ───── */
